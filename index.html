@@ -2,14 +2,14 @@
     <head>
         <link rel="stylesheet" type="text/css" href="style.css">
     </head>
-    <body>
-            <div id="box">
-                    <button onclick="addTask(/Users/john)">Open</button>
-            </div>
+    <body onload="initFolders()">
+        <div id="title">
+            Window 1
+        </div>
 
-            <div id="x" ondrop="addFolder(event)" ondragenter="ignoreEvent(event)" ondragover="ignoreEvent(event)">
+        <div id="box" ondrop="addFolder(event)" ondragenter="ignoreEvent(event)" ondragover="ignoreEvent(event)">
 
-            </div>
+        </div>
 
     </body>
 
@@ -23,10 +23,77 @@
 
         var desktopPath = app.getPath('desktop');
 
+
+        const Menu = remote.require('menu')
+        const MenuItem = remote.require('menu-item')
+
+        let rightClickPosition = null
+        let rightClickFolderName = null;
+
+        const menu = new Menu()
+
+        const menuItem = new MenuItem({
+          label: 'remove folder',
+          click: () => {
+              removeFolder();  // remove folder on clicking on remove folder
+
+          }
+        })
+        menu.append(menuItem)
+
+        var foldersDict = {}; // dictionary holding name to a tuple of old path and new path
+
+
+        function initFolders(){
+            fse.readFile('data.txt', (err, data) => {
+              if (err) throw err;
+              foldersDict = JSON.parse(data);
+              var keys = Object.keys(foldersDict);
+
+              for (var i = 0; i < keys.length; i++ ){
+                  var fileName = keys[i];
+                  var newFilePath = foldersDict[fileName][1];
+                  addFolderButton(fileName, newFilePath);
+              }
+
+            });
+        }
+
+        // creating the folder and add it to the app
+        function addFolderButton(fileName, newFilePath){
+            // create the button that links it
+            var newFolder = document.createElement("div"); // a div holding the button and the name of it
+            newFolder.id = fileName;  // the id is the same name as the file
+            newFolder.className = "folder";
+
+            var fileNameElement = document.createElement("div");  // to have the name of the file
+            fileNameElement.className = "fileNameElement";
+            fileNameElement.innerHTML = fileName;
+
+            var newFolderButton = document.createElement("button"); // the button that will run on clicking it
+            newFolderButton.className = "folderButton";
+
+            newFolder.addEventListener('contextmenu', (e) => { // right click action
+              e.preventDefault()
+              rightClickPosition = {x: e.x, y: e.y}
+              rightClickFolderName = e['target'].parentNode.id;  // the name of the folder
+              menu.popup(remote.getCurrentWindow()) // show the menu
+            }, false)
+
+
+            newFolderButton.onclick=function(){
+                shell.openItem(newFilePath)  // opens it in the new file name
+            }
+
+            newFolder.appendChild(newFolderButton);
+            newFolder.appendChild(fileNameElement);
+
+            document.querySelector("#box").appendChild(newFolder);
+        }
+
         // function that runs on the drop event to add the folder button
         function addFolder(event){
             event.preventDefault();
-            console.log(event.dataTransfer.files[0].path);
 
             var filePath = event.dataTransfer.files[0].path; // the original path of the file
 
@@ -40,15 +107,9 @@
                   console.log("success!")
             })
 
+            addFolderButton(fileName, newFilePath);
 
-            // create the button that links it
-            var newFolder = document.createElement("button");
-            newFolder.innerHTML = fileName;
-            newFolder.onclick=function(){
-                shell.openItem(newFilePath)  // opens it in the new file name
-            }
-            document.querySelector("#box").appendChild(newFolder);
-
+            foldersDict[fileName] = [filePath, newFilePath]; //tuple of the orginal path and new path
         }
 
         function removeButton(buttonName) {
@@ -56,32 +117,39 @@
           elem.parentNode.removeChild(elem);
           return false;
         }
+
         //function to remove folder from window and put it back on desktop
-        function removeFolder(event){
-          event.preventDefault();
-          console.log(event.dataTransfer.files[0].path);
+        function removeFolder(){
 
-          var filePath = event.dataTransfer.files[0].path; // the app file path of the file (John Check)
-
-          var fileName = filePath.split("/");
-          var fileName = fileName[fileName.length - 1];
-
-          var newFilePath = desktopPath + fileName;    // the put file to original desktop path (inside a folder on the desktop)
-
-          fse.move(filePath, newFilePath, function (err) {  // move from original location to the new one
+          fse.move(foldersDict[rightClickFolderName][1], foldersDict[rightClickFolderName][0], function (err) {  // move from original location to the new one
                 if (err) return console.error(err)
+                delete foldersDict[rightClickFolderName];
                 console.log("success!")
           })
 
           // Now remove the button
           //TO DO: Pass the button name
-          removeButton(buttonName)
+          removeButton(rightClickFolderName);
 
         }
 
         function ignoreEvent(event){
             event.preventDefault();
         }
+
+        window.onbeforeunload = function onbeforeunload() {
+            console.log('>>>> onbeforeunload called');
+
+            fse.writeFile("data.txt", JSON.stringify(foldersDict), function(err) {
+                if(err) {
+                    return console.log(err);
+                }
+
+                console.log("The file was saved!");
+            });
+            return true;
+        };
+
     </script>
 
 </html>
