@@ -51,6 +51,34 @@
 
         }
 
+        function removeButton(buttonName) {
+          var elem = document.getElementById(buttonName);
+          elem.parentNode.removeChild(elem);
+          return false;
+        }
+        //function to remove folder from window and put it back on desktop
+        function removeFolder(event){
+          event.preventDefault();
+          console.log(event.dataTransfer.files[0].path);
+
+          var filePath = event.dataTransfer.files[0].path; // the app file path of the file (John Check)
+
+          var fileName = filePath.split("/");
+          var fileName = fileName[fileName.length - 1];
+
+          var newFilePath = desktopPath + fileName;    // the put file to original desktop path (inside a folder on the desktop)
+
+          fse.move(filePath, newFilePath, function (err) {  // move from original location to the new one
+                if (err) return console.error(err)
+                console.log("success!")
+          })
+
+          // Now remove the button
+          //TO DO: Pass the button name
+          removeButton(buttonName)
+
+        }
+
         function ignoreEvent(event){
             event.preventDefault();
         }
