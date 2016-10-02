@@ -1,0 +1,59 @@
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="style.css">
+    </head>
+    <body>
+            <div id="box">
+                    <button onclick="addTask(/Users/john)">Open</button>
+            </div>
+
+            <div id="x" ondrop="addFolder(event)" ondragenter="ignoreEvent(event)" ondragover="ignoreEvent(event)">
+
+            </div>
+
+    </body>
+
+    <script>
+
+        var shell = require("shell")
+        var fse = require("fs-extra")
+
+        const remote = require('remote'),
+        app = remote.require('app');
+
+        var desktopPath = app.getPath('desktop');
+
+        // function that runs on the drop event to add the folder button
+        function addFolder(event){
+            event.preventDefault();
+            console.log(event.dataTransfer.files[0].path);
+
+            var filePath = event.dataTransfer.files[0].path; // the original path of the file
+
+            var fileName = filePath.split("/");
+            var fileName = fileName[fileName.length - 1];
+
+            var newFilePath = desktopPath + "/test/" + fileName;    // the new path (inside a folder on the desktop)
+
+            fse.move(filePath, newFilePath, function (err) {  // move from original location to the new one
+                  if (err) return console.error(err)
+                  console.log("success!")
+            })
+
+
+            // create the button that links it
+            var newFolder = document.createElement("button");
+            newFolder.innerHTML = fileName;
+            newFolder.onclick=function(){
+                shell.openItem(newFilePath)  // opens it in the new file name
+            }
+            document.querySelector("#box").appendChild(newFolder);
+
+        }
+
+        function ignoreEvent(event){
+            event.preventDefault();
+        }
+    </script>
+
+</html>

@@ -1,0 +1,14 @@
+html, body {
+    background: rgba(0, 0, 0, 0);
+}
+
+#box{
+    background: rgba(10,10,10,0.3);
+}
+
+#x{
+    width: 350px;
+    height: 350px;
+    border: 1px solid #aaaaaa;
+
+}
