@@ -1,5 +1,6 @@
 html, body {
     background: rgba(0, 0, 0, 0);
+    overflow: hidden;
 }
 
 
@@ -8,25 +9,39 @@ html, body {
     border: 1px solid black;
     border-radius: 7px 7px 0px 0px;
     background-color: rgba(10,10,30,0.5);
+    text-align: center;
+    color: white;
+
+    overflow: hidden;
+    -webkit-app-region: drag;
+}
+
+#titleText{
+    background-color: rgba(10,10,30,0.5);
+    font-size: 14px;
     color: white;
     font-family: "Arial", sans-serif;
     text-align: center;
+
 }
 
 #box{
-    background: rgba(150,150,150,0.1);
+    background: rgba(150,150,150,0.3);
     width: 100%;
     height: 100%;
     border: 1px solid #aaaaaa;
+    overflow-y: scroll;
 
 }
 
 
 .folder{
+    margin-top: 10px;
     color: white;
     height: 70px;
     float: left;
     margin-left: 10px;
+    padding: 5px 5px 5px 5px;
 }
 
 .folderButton{
@@ -39,4 +54,11 @@ html, body {
 .fileNameElement{
     margin: 0 auto;
     text-align: center;
+}
+
+#settingsButton{
+    float: right;
+    margin-right: 10px;
+    visibility: hidden;
+
 }

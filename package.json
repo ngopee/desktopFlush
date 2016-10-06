@@ -1,8 +1,23 @@
 {
-  "name": "your-app",
-  "version": "0.1.0",
+  "name": "desktop_flush",
+  "version": "0.0.9",
   "main": "main.js",
   "dependencies": {
     "fs-extra": "^0.30.0"
-  }
+  },
+  "description": "Removes all the crap from your desktop",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ngopee/desktopFlush.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ngopee/desktopFlush/issues"
+  },
+  "homepage": "https://github.com/ngopee/desktopFlush#readme"
 }

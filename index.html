@@ -3,8 +3,12 @@
         <link rel="stylesheet" type="text/css" href="style.css">
     </head>
     <body onload="initFolders()">
-        <div id="title">
-            Window 1
+
+        <div id="title" onmouseover="showSettings()" onmouseout='hideSettings()' ondblclick="changeTitleName()" >
+            <input type="text" id="titleText" value="Window 1" disabled="disabled"  onfocusout="saveNewTitle()"/>
+            <div id="settingsButton" onclick="showSettingsMenu()" >
+                S
+            </div>
         </div>
 
         <div id="box" ondrop="addFolder(event)" ondragenter="ignoreEvent(event)" ondragover="ignoreEvent(event)">
@@ -22,6 +26,53 @@
         app = remote.require('app');
 
         var desktopPath = app.getPath('desktop');
+        var groupName;
+
+        /////////////////////////////////////////////
+
+        var chokidar = require("chokidar");
+
+        var path = desktopPath + "/test/";
+        console.log(path);
+
+         var watcher = chokidar.watch(path, {
+             ignored: /[\/\\]\./,
+             persistent: true,
+             depth: 2
+         });
+
+         function onWatcherReady(){
+             console.info('From here can you check for real changes, the initial scan has been completed.');
+         }
+
+
+        //  // Declare the listeners of the watcher
+         watcher
+         .on('add', function(path) {
+               console.log('File', path, 'has been added');
+         })
+         .on('addDir', function(path) {
+               console.log('Directory', path, 'has been added');
+         })
+         .on('change', function(path) {
+              console.log('File', path, 'has been changed');
+         })
+         .on('unlink', function(path) {
+              console.log('File', path, 'has been removed');
+         })
+         .on('unlinkDir', function(path) {
+              console.log('Directory', path, 'has been removed');
+         })
+         .on('error', function(error) {
+              console.log('Error happened', error);
+         })
+         .on('ready', onWatcherReady)
+         .on('raw', function(event, path, details) {
+              // This event should be triggered everytime something happens.
+              console.log('Raw event info:', event, path, details);
+         });
+
+        ////////////////////////////////////////////
 
 
         const Menu = remote.require('menu')
@@ -30,6 +81,7 @@
         let rightClickPosition = null
         let rightClickFolderName = null;
 
+        /////// right click menu ////////////
         const menu = new Menu()
 
         const menuItem = new MenuItem({
@@ -40,14 +92,45 @@
           }
         })
         menu.append(menuItem)
+        /////////////// end of right click menu .////////////
+
+        /////////// settings menu ///////////////////
+        const settingsMenu = new Menu();
+        const settingsMenuItem = new MenuItem({
+            label: 'Add Group',
+            click: () => {
+                var createWindow = require('electron').remote.require('./main').createWindow;
+
+                var win = createWindow();
+
+            }
+        })
+
+        settingsMenu.append(settingsMenuItem);
+        //////// end of settings menu //////////////
 
         var foldersDict = {}; // dictionary holding name to a tuple of old path and new path
 
-
         function initFolders(){
+            var remote = require("electron").remote;
+
+            var id = remote.getCurrentWindow().id;
+
             fse.readFile('data.txt', (err, data) => {
               if (err) throw err;
-              foldersDict = JSON.parse(data);
+              console.log(data);
+              if (data == ""){
+                  return;
+              }
+              data = JSON.parse(data);
+
+              console.log(data[id-1]['title']);
+
+              foldersDict = data[id-1]['folders'];
+
+              document.querySelector("#titleText").value = data[id-1]["title"];
+              groupName = data[id-1]["title"];
+
               var keys = Object.keys(foldersDict);
 
               for (var i = 0; i < keys.length; i++ ){
@@ -57,6 +140,7 @@
               }
 
             });
+
         }
 
         // creating the folder and add it to the app
@@ -81,9 +165,14 @@
             }, false)
 
 
-            newFolderButton.onclick=function(){
-                shell.openItem(newFilePath)  // opens it in the new file name
+            newFolderButton.ondblclick=function(){
+                shell.openItem(newFilePath)  // opens it in the new file name path
             }
+
+            newFolderButton.onclick = function(){
+                newFolder.style.backgroundColor = "red";
+            }
+
 
             newFolder.appendChild(newFolderButton);
             newFolder.appendChild(fileNameElement);
@@ -100,7 +189,7 @@
             var fileName = filePath.split("/");
             var fileName = fileName[fileName.length - 1];
 
-            var newFilePath = desktopPath + "/test/" + fileName;    // the new path (inside a folder on the desktop)
+            var newFilePath = desktopPath + "/test/" + groupName + "/" + fileName;    // the new path (inside a folder on the desktop)
 
             fse.move(filePath, newFilePath, function (err) {  // move from original location to the new one
                   if (err) return console.error(err)
@@ -137,10 +226,48 @@
             event.preventDefault();
         }
 
-        window.onbeforeunload = function onbeforeunload() {
-            console.log('>>>> onbeforeunload called');
 
-            fse.writeFile("data.txt", JSON.stringify(foldersDict), function(err) {
+        // show settings button when hovering over the title
+        function showSettings(){
+            document.querySelector("#settingsButton").style.visibility = 'visible';
+        }
+
+        // hide settings button when outside the title bar
+        function hideSettings(){
+            document.querySelector("#settingsButton").style.visibility = 'hidden';
+        }
+
+        function showSettingsMenu(){
+            settingsMenu.popup(remote.getCurrentWindow()) // show the menu
+        }
+
+        function changeTitleName(){
+            console.log("h");
+            document.getElementById("titleText").disabled="";
+        }
+
+        function saveNewTitle(){
+            document.getElementById("titleText").disabled="true";
+
+            var updatedTitle = document.querySelector("#titleText").value;
+
+            var oldName = desktopPath + "/test/" + groupName;
+            var newName = desktopPath + "/test/" + updatedTitle;
+
+            fse.rename(oldName, newName, function(err){
+                if (err) throw err;
+
+            });
+
+            groupName = updatedTitle;
+        }
+
+
+
+        window.onbeforeunload = function onbeforeunload() {
+            var data = [{'folders':foldersDict, 'title': groupName}];
+
+            fse.writeFile("data.txt", JSON.stringify(data), function(err) {
                 if(err) {
                     return console.log(err);
                 }
@@ -151,5 +278,6 @@
         };
 
     </script>
+
 
 </html>

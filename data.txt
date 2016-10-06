@@ -1,1 +1,0 @@
-{"tset2":["/Users/john/Desktop/tset2","/Users/john/Desktop/test/tset2"],"abc":["/Users/john/Desktop/abc","/Users/john/Desktop/test/abc"]}
