@@ -66,7 +66,6 @@
     "repeat-string": "^1.5.4",
     "rimraf": "^2.5.4",
     "set-immediate-shim": "^1.0.1",
-    "shell": "^0.3.2",
     "string_decoder": "^0.10.31",
     "util-deprecate": "^1.0.2",
     "wrappy": "^1.0.2"

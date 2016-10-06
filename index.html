@@ -19,7 +19,8 @@
 
     <script>
 
-        var shell = require("shell")
+        // const shell = require("shell")
+        const shell = require("electron").shell
         var fse = require("fs-extra")
 
         const remote = require('remote'),
@@ -164,8 +165,9 @@
               menu.popup(remote.getCurrentWindow()) // show the menu
             }, false)
 
-
-            newFolderButton.ondblclick=function(){
+            var c = this;
+            newFolderButton.ondblclick = function(){
+                console.log(newFilePath);
                 shell.openItem(newFilePath)  // opens it in the new file name path
             }
 
