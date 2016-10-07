@@ -51,6 +51,7 @@
     "micromatch": "^2.3.11",
     "minimatch": "^3.0.3",
     "nan": "^2.4.0",
+    "node-notifier": "^4.6.1",
     "normalize-path": "^2.0.1",
     "object.omit": "^2.0.0",
     "once": "^1.4.0",

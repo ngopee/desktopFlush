@@ -17,7 +17,7 @@ html, body {
 }
 
 #titleText{
-    background-color: rgba(10,10,30,0.5);
+    background-color: rgba(10,10,30,0);
     font-size: 14px;
     color: white;
     font-family: "Arial", sans-serif;
