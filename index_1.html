@@ -26,94 +26,51 @@
         const remote = require('electron').remote;
         const app = remote.app;
         const notifier = require('node-notifier');
-        const ipcRenderer =  require("electron").ipcRenderer;
 
         var desktopPath = app.getPath('desktop');
 
         var groupName;
 
-        ipcRenderer.on('changeTitle' , function(event , data){
-                        console.log(data.newTitle);
-                        groupName = data.newTitle;
-                        document.querySelector("#titleText").value = groupName;
-                    });
-
         /////////////////////////////////////////////
 
-        function setWatcher(){
+        var path = desktopPath + "/test/";
 
-            var path = desktopPath + "/test/" + groupName;
+         var watcher = chokidar.watch(path, {
+             ignored: /[\/\\]\./,
+             persistent: true,
+             depth: 2
+         });
 
-             var watcher = chokidar.watch(path, {
-                 ignored: /[\/\\]\./,
-                 ignoreInitial: true,
-                 persistent: true,
-                 depth: 1
-             });
+         function onWatcherReady(){
+             console.info('From here can you check for real changes, the initial scan has been completed.');
+         }
 
-            //  // Declare the listeners of the watcher
-             watcher
-             .on('add', function(path) {
 
-                 var fileName = path.split("/");
-                 fileName = fileName[fileName.length-1];
-
-                 if (foldersDict[fileName]){
-                     return;
-                 }
-
-                 var newPath = desktopPath + "/test/" + groupName + "/" + fileName;
-
-                 foldersDict[fileName] = [desktopPath + "/" + fileName, newPath];
-
-                 addFolderButton(fileName, newPath);
-
-                   console.log('File', path, 'has been added');
-             })
-             .on('addDir', function(path) {
-
-                 var fileName = path.split("/");
-                 fileName = fileName[fileName.length-1];
-
-                 if (foldersDict[fileName]){
-                     return;
-                 }
-
-                 var newPath = desktopPath + "/test/" + groupName + "/" + fileName;
-
-                 foldersDict[fileName] = [desktopPath + "/" + fileName, newPath];
-
-                 addFolderButton(fileName, newPath);
-
-                 console.log('Directory', path, 'has been added');
-             })
-             .on('change', function(path) {
-                  console.log('File', path, 'has been changed');
-             })
-             .on('unlink', function(path) {
-                 var fileName = path.split("/");
-                 fileName = fileName[fileName.length-1];
-                 delete foldersDict[fileName];
-                 removeButton(fileName);
-                  console.log('File', path, 'has been removed');
-             })
-             .on('unlinkDir', function(path) {
-                 var dirName = path.split("/");
-                 dirName = dirName[dirName.length-1];
-                 delete foldersDict[dirName];
-                 removeButton(dirName);
-                  console.log('Directory', path, 'has been removed');
-             })
-             .on('error', function(error) {
-                  console.log('Error happened', error);
-             })
-            //  .on('ready', onWatcherReady)
-             .on('raw', function(event, path, details) {
-                  // This event should be triggered everytime something happens.
-                  console.log('Raw event info:', event, path, details);
-             });
-        }
-
+        //  // Declare the listeners of the watcher
+         watcher
+         .on('add', function(path) {
+               console.log('File', path, 'has been added');
+         })
+         .on('addDir', function(path) {
+               console.log('Directory', path, 'has been added');
+         })
+         .on('change', function(path) {
+              console.log('File', path, 'has been changed');
+         })
+         .on('unlink', function(path) {
+              console.log('File', path, 'has been removed');
+         })
+         .on('unlinkDir', function(path) {
+              console.log('Directory', path, 'has been removed');
+         })
+         .on('error', function(error) {
+              console.log('Error happened', error);
+         })
+         .on('ready', onWatcherReady)
+         .on('raw', function(event, path, details) {
+              // This event should be triggered everytime something happens.
+              console.log('Raw event info:', event, path, details);
+         });
 
         ////////////////////////////////////////////
 
@@ -122,7 +79,7 @@
         const {Menu, MenuItem} = remote
 
         let rightClickPosition = null
-        let rightClickFolderID = null;
+        let rightClickFolderName = null;
 
         /////// right click menu ////////////
         const menu = new Menu()
@@ -154,24 +111,32 @@
         var foldersDict = {}; // dictionary holding name to a tuple of old path and new path
 
         function initFolders(){
-            var index = remote.getCurrentWindow().id - 1;
-            groupName = remote.getGlobal('sharedObj').titles[index];
-            document.getElementById("titleText").value = groupName;  // set the title of the group
 
-            var srcPath = desktopPath + "/test/" + groupName;
+            var id = remote.getCurrentWindow().id;
 
-            var files =  fse.readdirSync(srcPath).filter(function(file) {
-                    return file[0]!=='.';
-                });
+            fse.readFile('data.txt', (err, data) => {
+              if (err) throw err;
+              if (data == ""){
+                  return;
+              }
+              data = JSON.parse(data);
 
-            console.log(files);
-            for (var i = 0; i < files.length; i++){
-                var fileName = files[i];
-                console.log(srcPath + "/" + fileName);
-                addFolderButton(fileName, srcPath + "/" + fileName);
-            }
+              console.log(data[id-1]['title']);
 
-            setWatcher();
+              foldersDict = data[id-1]['folders'];
+
+              document.querySelector("#titleText").value = data[id-1]["title"];
+              groupName = data[id-1]["title"];
+
+              var keys = Object.keys(foldersDict);
+
+              for (var i = 0; i < keys.length; i++ ){
+                  var fileName = keys[i];
+                  var newFilePath = foldersDict[fileName][1];
+                  addFolderButton(fileName, newFilePath);
+              }
+
+            });
 
         }
 
@@ -179,7 +144,7 @@
         function addFolderButton(fileName, newFilePath){
             // create the button that links it
             var newFolder = document.createElement("div"); // a div holding the button and the name of it
-            newFolder.id = "__" + fileName;  // the id is the same name as the file
+            newFolder.id = fileName;  // the id is the same name as the file
             newFolder.className = "folder";
 
             var fileNameElement = document.createElement("div");  // to have the name of the file
@@ -192,7 +157,7 @@
             newFolder.addEventListener('contextmenu', (e) => { // right click action
               e.preventDefault()
               rightClickPosition = {x: e.x, y: e.y}
-              rightClickFolderID = e['target'].parentNode.id;  // the name of the folder
+              rightClickFolderName = e['target'].parentNode.id;  // the name of the folder
               menu.popup(remote.getCurrentWindow()) // show the menu
             }, false)
 
@@ -237,41 +202,31 @@
         }
 
         function removeButton(buttonName) {
-          var elem = document.getElementById("__" + buttonName);
-          console.log(elem);
+          var elem = document.getElementById(buttonName);
           elem.parentNode.removeChild(elem);
+          return false;
         }
 
         //function to remove folder from window and put it back on desktop
         function removeFolder(){
-            var fileName = rightClickFolderID.split("__")[1];
-
-            if (!foldersDict[fileName]){
-                console.log("0");
-                var oldPath = desktopPath + "/" + fileName;
-                var newPath = desktopPath + "/test/" + groupName + "/" + fileName;
-            } else{
-                console.log("1");
-                var oldPath = foldersDict[fileName][0];
-                var newPath = foldersDict[fileName][1];
-            }
-
-            console.log("new PAth is " , newPath);
-            console.log("old path is " , oldPath);
-
+            var oldPath = foldersDict[rightClickFolderName][0];
+            var newPath = foldersDict[rightClickFolderName][1];
           fse.move(newPath, oldPath, function (err) {  // move from original location to the new one
                 if (err) return console.error(err)
-                delete foldersDict[fileName]; // delete the folder from the dictionary
+                delete foldersDict[rightClickFolderName]; // delete the folder from the dictionary
 
                 notifier.notify({
                   title: 'Desktop Flush',
-                  message: fileName + " moved to " + oldPath,
+                  message: rightClickFolderName + " moved to " + newPath,
 
                 }, function (err, response) {
                   // Response is response from notification
                 });
 
           })
+
+          // Now remove the button
+          removeButton(rightClickFolderName);
 
         }
 
@@ -327,10 +282,8 @@
 
                 console.log("The file was saved!");
             });
-
+            
         };
-
-
 
     </script>
 
