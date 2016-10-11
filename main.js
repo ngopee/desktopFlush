@@ -170,15 +170,27 @@ function newWindow(title){
 }
 
 function startApp(){
+    try{
+        stats = fse.lstatSync(mainFolderPath);
 
-    var folders =  fse.readdirSync(mainFolderPath).filter(function(file) {
-            return fse.statSync(path.join(mainFolderPath, file)).isDirectory();
-        });
+        if (stats.isDirectory()) {
+            var folders =  fse.readdirSync(mainFolderPath).filter(function(file) {
+                    return fse.statSync(path.join(mainFolderPath, file)).isDirectory();
+                });
 
 
-    for(var i=0; i<folders.length; i++){
-        newWindow(folders[i]);
+            for(var i=0; i<folders.length; i++){
+                newWindow(folders[i]);
+            }
+        }
     }
+    catch (e){
+        fse.mkdirSync(mainFolderPath); // create the main folder
+
+        newWindow(null);
+
+    }
+
 
     setWatcher();
 
@@ -202,6 +214,9 @@ app.on('window-all-closed', () => {
 app.on('activate', () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
+
+  var win = global.sharedObj.windows[0];
+
   if (win === null) {
     startApp();
 
