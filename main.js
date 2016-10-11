@@ -5,7 +5,7 @@ const {app, BrowserWindow} = require('electron')
 
 global.sharedObj = {windows: [], titles:[]};
 
-exports.createWindow = createWindow;
+exports.newWindow = newWindow;
 
 const fse = require("fs-extra");
 const path = require("path");
@@ -78,8 +78,7 @@ function setWatcher(){
              return;
          }
 
-         var win = createWindow();
-         addWindow(win, fileName);
+         newWindow();
          console.log('Directory', path, 'has been added');
      })
      .on('change', function(path) {
@@ -154,10 +153,20 @@ function createWindow () {
 }
 
 
+function newWindow(title){
+    console.log(title);
+    if (title == null){
+        title = "Window " + (global.sharedObj.windows.length + 1).toString() ;
+        fse.mkdirSync(mainFolderPath + title);
 
-function addWindow(win, folderName){
+    }
+
+    var win = createWindow();
+    // Open the DevTools.
+    win.webContents.openDevTools();
+
     global.sharedObj.windows.push(win);
-    global.sharedObj.titles.push(folderName);
+    global.sharedObj.titles.push(title);
 }
 
 function startApp(){
@@ -168,11 +177,7 @@ function startApp(){
 
 
     for(var i=0; i<folders.length; i++){
-        var win = createWindow();
-        // Open the DevTools.
-        win.webContents.openDevTools();
-
-        addWindow(win, folders[i]);
+        newWindow(folders[i]);
     }
 
     setWatcher();
