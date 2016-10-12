@@ -287,7 +287,7 @@ function saveNewTitle(){
  // }
 
  function changeBackgroundColor(color) {
-   document.body.style.backgroundColor = color;
+   document.querySelector("#box").style.backgroundColor=color;
 }
 
 // before quitting the window, save the data structure
