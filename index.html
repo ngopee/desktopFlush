@@ -3,6 +3,7 @@
         <link rel="stylesheet" type="text/css" href="style.css">
         <script src="./menus.js"></script>
         <script src="./index.js"></script>
+        <script src="../desktopFlush/node_modules/angular/angular.js"></script>
     </head>
     <body onload="initFolders()">
 
@@ -11,6 +12,8 @@
 
             <img src="./icons/Settings.png" id="settingsButton" onclick="showSettingsMenu()" >
             </img>
+
+            <button class="#box" onclick="changeBackgroundColor('red')">test</button>
         </div>
 
         <div id="box" ondrop="addFolder(event)" ondragenter="ignoreEvent(event)" ondragover="ignoreEvent(event)">

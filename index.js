@@ -281,6 +281,15 @@ function saveNewTitle(){
 }
 
 
+ // function changeBackgroundColor() {
+ //  //  angular.element('.myBox').css('background-color', '#000');
+ //  angular.element('.box2').css('background', '#000');
+ // }
+
+ function changeBackgroundColor(color) {
+   document.body.style.backgroundColor = color;
+}
+
 // before quitting the window, save the data structure
 window.onbeforeunload = function onbeforeunload() {
     var data = [{'folders':foldersDict, 'title': groupName}];
