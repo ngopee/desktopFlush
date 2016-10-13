@@ -281,11 +281,6 @@ function saveNewTitle(){
 }
 
 
- // function changeBackgroundColor() {
- //  //  angular.element('.myBox').css('background-color', '#000');
- //  angular.element('.box2').css('background', '#000');
- // }
-
  function changeBackgroundColor(color) {
    document.querySelector("#box").style.backgroundColor=color;
 }
