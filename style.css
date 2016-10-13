@@ -50,20 +50,6 @@ html, body {
     display: block;
 }
 
-.folderButtonReduce{
-    height: 0;
-    display: none;
-}
-
-.fileNameElementReduce{
-    width: 50px;
-    cursor: default;
-    margin: 5 auto;
-    border: 1px solid gray;
-    border-radius: 3px;
-    text-align: center;
-    -webkit-user-select: none;
-}
 
 .fileNameElement{
     cursor: default;

@@ -138,15 +138,13 @@ function addFolderButton(fileName, newFilePath){
     newFolder.className = "folder";
 
     var fileNameElement = document.createElement("div");  // to have the name of the file
-    if (reduced) fileNameElement.className = 'fileNameElementReduce';
-    else fileNameElement.className = "fileNameElement";
+    fileNameElement.className = "fileNameElement";
     fileNameElement.innerHTML = fileName;
 
     var newFolderButton = document.createElement("img"); // the button that will run on clicking it
     newFolderButton.src = "./icons/GenericFolderIcon.png";
     newFolderButton.setAttribute("draggable", false);
-    if (reduced) newFolderButton.className = "folderButtonReduce";
-    else newFolderButton.className = "folderButton";
+    newFolderButton.className = "folderButton";
 
     newFolder.addEventListener('contextmenu', (e) => { // right click action
       e.preventDefault()

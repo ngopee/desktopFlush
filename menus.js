@@ -21,7 +21,6 @@ menu.append(menuItem)
 // since we can't change labels dynamically, I have 2 menus, one with reduce and the other with expand
 // on the clicking on reduce i move to the expand one and vice versa
 
-var reduced = false;
 
 const settings1 = new Menu(); // the one with reduce
 const settings2 = new Menu();  // the one with expand
@@ -38,51 +37,25 @@ const AddGroupItem = new MenuItem({
 })
 
 
-var reduceFoldersItem = new MenuItem({
+var reduce = new MenuItem({
     label: 'Reduce',
     click: () => {
-
-        var folders = document.getElementsByClassName('folderButton');
-        var l = folders.length
-
-        for (var i = 0; i < l; i++){
-            folders[0].className = "folderButtonReduce";
-        }
-
-        var names = document.getElementsByClassName('fileNameElement');
-        l = names.length;
-        for (var i = 0; i < l; i++){
-            names[0].className = "fileNameElementReduce";
-        }
-
+        document.getElementById("box").style.display = "none";
         settingsMenu = settings2;
-        reduced = true;
     }
 })
 
-var expandFoldersItem = new MenuItem({
+var expand = new MenuItem({
     label: 'Expand',
     click: () => {
-        var folders = document.getElementsByClassName('folderButtonReduce');
-        var l = folders.length;
-        for (var i = 0; i < l; i++){
-            folders[0].className = "folderButton";
-
-        }
-
-        var names = document.getElementsByClassName('fileNameElementReduce');
-        l = names.length;
-        for (var i = 0; i < l; i++){
-            names[0].className = "fileNameElement";
-        }
+        document.getElementById("box").style.display = "block";
         settingsMenu = settings1;
-        reduced = false;  
 
     }
 })
 
 settings1.append(AddGroupItem);
-settings1.append(reduceFoldersItem);
+settings1.append(reduce);
 
 settings2.append(AddGroupItem);
-settings2.append(expandFoldersItem);
+settings2.append(expand);
