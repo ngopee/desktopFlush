@@ -246,15 +246,15 @@ function ignoreEvent(event){
 }
 
 
-// show settings button when hovering over the title
-function showSettings(){
-    document.querySelector("#settingsButton").style.visibility = 'visible';
-}
-
-// hide settings button when outside the title bar
-function hideSettings(){
-    document.querySelector("#settingsButton").style.visibility = 'hidden';
-}
+// // show settings button when hovering over the title
+// function showSettings(){
+//     document.querySelector("#settingsButton").style.visibility = 'visible';
+// }
+//
+// // hide settings button when outside the title bar
+// function hideSettings(){
+//     document.querySelector("#settingsButton").style.visibility = 'hidden';
+// }
 
 function showSettingsMenu(){
     settingsMenu.popup(remote.getCurrentWindow()) // show the menu
