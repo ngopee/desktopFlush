@@ -138,13 +138,15 @@ function addFolderButton(fileName, newFilePath){
     newFolder.className = "folder";
 
     var fileNameElement = document.createElement("div");  // to have the name of the file
-    fileNameElement.className = "fileNameElement";
+    if (reduced) fileNameElement.className = 'fileNameElementReduce';
+    else fileNameElement.className = "fileNameElement";
     fileNameElement.innerHTML = fileName;
 
     var newFolderButton = document.createElement("img"); // the button that will run on clicking it
     newFolderButton.src = "./icons/GenericFolderIcon.png";
     newFolderButton.setAttribute("draggable", false);
-    newFolderButton.className = "folderButton";
+    if (reduced) newFolderButton.className = "folderButtonReduce";
+    else newFolderButton.className = "folderButton";
 
     newFolder.addEventListener('contextmenu', (e) => { // right click action
       e.preventDefault()
@@ -154,14 +156,14 @@ function addFolderButton(fileName, newFilePath){
     }, false)
 
     var c = this;
-    newFolderButton.ondblclick = function(){
+    newFolder.ondblclick = function(){
         var newFilePath = desktopPath + "/test/" + groupName + "/" + fileName;    // the new path (inside a folder on the desktop)
 
         console.log(newFilePath);
         shell.openItem(newFilePath)  // opens it in the new file name path
     }
 
-    newFolderButton.onclick = function(){
+    newFolder.onclick = function(){
         if (clickedFolderButton != null){
             clickedFolderButton.style.backgroundColor = "transparent";
             clickedFolderText.style.backgroundColor = "transparent";

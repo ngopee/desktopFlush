@@ -48,14 +48,29 @@ html, body {
     height: 50px;
     margin: 0 auto;
     display: block;
+}
 
+.folderButtonReduce{
+    height: 0;
+    display: none;
+}
+
+.fileNameElementReduce{
+    width: 50px;
+    cursor: default;
+    margin: 5 auto;
+    border: 1px solid gray;
+    border-radius: 3px;
+    text-align: center;
+    -webkit-user-select: none;
 }
 
 .fileNameElement{
-    width: 80%;
+    cursor: default;
     margin: 5 auto;
-    border-radius: 5px;
+    border-radius: 3px;
     text-align: center;
+    -webkit-user-select: none;
 }
 
 #settingsButton{
