@@ -6,6 +6,7 @@ const {app, BrowserWindow} = require('electron')
 global.sharedObj = {windows: [], titles:[]};
 
 exports.newWindow = newWindow;
+exports.getWindowIndex = getWindowIndex;
 
 const fse = require("fs-extra");
 const path = require("path");
@@ -17,6 +18,8 @@ const mainFolderPath = desktopPath + "/test/";
 
 var renamedFolderTitle = "";
 
+var justCreated = false;
+
 // the function return the number of groups based on the folders in the main folder
 function getNumOfGroups(){
     var folders =  fse.readdirSync(mainFolderPath).filter(function(file) {
@@ -26,10 +29,20 @@ function getNumOfGroups(){
     return folders.length;
 }
 
+// return windowIndex by the window (called from renderer process)
+function getWindowIndex(win){
+    var windows = global.sharedObj.windows;
+    for (var i = 0; i < windows.length; i ++){
+        if (windows[i] == win){
+            return i;
+        }
+    }
+}
+
 
 // returns the index of the folder in the list
 // returns -1 on error
-function getWindowIndex(folderName){
+function getWindowIndexByName(folderName){
     var list = global.sharedObj.titles;
     for (var i = 0; i < list.length; i++){
         if (list[i] === folderName){
@@ -57,6 +70,10 @@ function setWatcher(){
         console.log('File', path, 'has been added');
      })
      .on('addDir', function(path) {
+         if (justCreated == true){
+             justCreated = false;
+             return;
+         }
          var fileName = path.split("/");
          fileName = fileName[fileName.length-1];
 
@@ -78,7 +95,7 @@ function setWatcher(){
              return;
          }
 
-         newWindow();
+         newWindow(fileName);
          console.log('Directory', path, 'has been added');
      })
      .on('change', function(path) {
@@ -98,7 +115,7 @@ function setWatcher(){
 
          if (numOfGroups != global.sharedObj.windows.length){
              console.log("close window");
-             var index = getWindowIndex(dirName);
+             var index = getWindowIndexByName(dirName);
              global.sharedObj.windows[index].close();
 
              console.log(global.sharedObj.titles);
@@ -138,7 +155,7 @@ function createWindow () {
     });
 
   // and load the index.html of the app.
-  win.loadURL(`file://${__dirname}/index.html`)
+  win.loadURL('file://' + app.getAppPath() + '/index.html')
 
   // Emitted when the window is closed.
   win.on('closed', () => {
@@ -158,7 +175,7 @@ function newWindow(title){
     if (title == null){
         title = "Window " + (global.sharedObj.windows.length + 1).toString() ;
         fse.mkdirSync(mainFolderPath + title);
-
+        justCreated = true;
     }
 
     var win = createWindow();

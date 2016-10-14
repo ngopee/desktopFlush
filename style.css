@@ -64,5 +64,10 @@ html, body {
     height: 20px;
     float: right;
     margin-right: 10px;
+}
+
+#colorValue{
+
+    display: none;
 
 }

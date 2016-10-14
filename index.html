@@ -4,10 +4,12 @@
         <script src="./menus.js"></script>
         <script src="./index.js"></script>
         <script src="../desktopFlush/node_modules/angular/angular.js"></script>
+        <script src="./scripts/jscolor.min.js"></script>
     </head>
     <body onload="initFolders()">
 
         <div id="title" ondblclick="enableTitleChange()" >
+
             <input type="text" id="titleText" value="Window 1" disabled="disabled"  onfocusout="saveNewTitle()"/>
 
             <img src="./icons/Settings.png" id="settingsButton" onclick="showSettingsMenu()" >
@@ -15,11 +17,9 @@
 
             <button class="#box" onclick="changeBackgroundColor('rgba(204,0,0,0.5)')">test</button>
         </div>
-
         <div id="box" ondrop="addFolder(event)" ondragenter="ignoreEvent(event)" ondragover="ignoreEvent(event)">
 
         </div>
-
 
     </body>
 

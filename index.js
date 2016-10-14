@@ -29,6 +29,8 @@ ipcRenderer.on('changeTitle' , function(event , data){
 
 /////////////////////////////////////////////
 
+
+
 // set watcher over the folder of that group
 function setWatcher(){
 
@@ -111,8 +113,13 @@ function setWatcher(){
 
 // run in the beginning, to set the folders/files that are already in the group folder
 function initFolders(){
-    var index = remote.getCurrentWindow().id - 1;
+    var getWindowIndex = require('electron').remote.require('./main').getWindowIndex;
+    var index = getWindowIndex(remote.getCurrentWindow());
+
     groupName = remote.getGlobal('sharedObj').titles[index];
+    console.log(index);
+    console.log(groupName);
+    console.log(remote.getGlobal('sharedObj').titles);
     document.getElementById("titleText").value = groupName;  // set the title of the group
 
     var srcPath = desktopPath + "/test/" + groupName;
@@ -280,10 +287,6 @@ function saveNewTitle(){
     groupName = updatedTitle;
 }
 
-
- function changeBackgroundColor(color) {
-   document.querySelector("#box").style.backgroundColor=color;
-}
 
 // before quitting the window, save the data structure
 window.onbeforeunload = function onbeforeunload() {
