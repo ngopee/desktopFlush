@@ -137,6 +137,22 @@ function initFolders(){
 
 }
 
+// based on http://stackoverflow.com/questions/1431094/how-do-i-replace-a-character-at-a-particular-index-in-javascript
+function setCharsAt(str,index1, index2) {
+    if(index > str.length-1) return str;
+    return ;
+}
+
+
+function modifyFileName(fileName){
+    var strLength = fileName.length;
+    if (strLength > 10){
+
+        return fileName.substr(0,4) + "..." + fileName.substr(strLength-4);
+    }
+    return fileName;
+}
+
 // creating the folder and add it to the app
 function addFolderButton(fileName, newFilePath){
     // create the button that links it
@@ -146,7 +162,7 @@ function addFolderButton(fileName, newFilePath){
 
     var fileNameElement = document.createElement("div");  // to have the name of the file
     fileNameElement.className = "fileNameElement";
-    fileNameElement.innerHTML = fileName;
+    fileNameElement.innerHTML = modifyFileName(fileName);
 
     var newFolderButton = document.createElement("img"); // the button that will run on clicking it
     newFolderButton.src = "./icons/GenericFolderIcon.png";
