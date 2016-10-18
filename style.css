@@ -1,6 +1,12 @@
+@import "node_modules/font-awesome/less/font-awesome.less"
+
 html, body {
     background: rgba(0, 0, 0, 0);
     overflow: hidden;
+}
+
+.fa-angle-down {
+  color: white;
 }
 
 #title{
