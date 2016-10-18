@@ -44,19 +44,19 @@ const colors = new MenuItem({
             label: "Red",
             click: () => {
                 console.log(document.getElementById("box"));
-                document.getElementById("box").style.backgroundColor = "rgba(232, 22, 22, 0.57)";
+                document.getElementById("box").style.backgroundColor = "rgba(232, 22, 22, 0.8)";
             }
         },
         {
             label: "Gray",
             click: () => {
-                document.getElementById("box").style.backgroundColor = "rgba(100,100,100,0.5)";
+                document.getElementById("box").style.backgroundColor = "rgba(100,100,100,0.8)";
             }
         },
         {
             label: "Blue",
             click: () => {
-                document.getElementById("box").style.backgroundColor = "rgba(22,22,232,0.5)";
+                document.getElementById("box").style.backgroundColor = "rgba(22,22,232,0.8)";
             }
         },
     ]
