@@ -11,8 +11,8 @@ const ipcRenderer =  require("electron").ipcRenderer;
 var desktopPath = app.getPath('desktop');
 
 var groupName;
-let rightClickPosition = null
-let rightClickFolderID = null;
+var rightClickPosition = null
+var rightClickFolderID = null;
 
 var foldersDict = {}; // dictionary holding name to a tuple of old path and new path
 

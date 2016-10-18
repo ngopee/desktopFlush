@@ -12,13 +12,29 @@ const fse = require("fs-extra");
 const path = require("path");
 const chokidar = require("chokidar");
 
+const appPath = `file://${__dirname}/`;
 const desktopPath = app.getPath('desktop');
-
 const mainFolderPath = desktopPath + "/test/";
+
 
 var renamedFolderTitle = "";
 
 var justCreated = false;
+
+// to add it to the top bar
+// var menubar = require('menubar')
+//
+//
+// var mb = menubar({'index': appPath + 'menubar/topmenu.html', 'width':400, 'height': 200});
+//
+// mb.on('ready', function ready () {
+//    console.log("hello");
+// })
+
+
+// app.dock.hide(); // to hide it from the dock
+
+
 
 // the function return the number of groups based on the folders in the main folder
 function getNumOfGroups(){
@@ -144,29 +160,34 @@ function setWatcher(){
 
 
 function createWindow () {
-  // Create the browser window.
-  var win = new BrowserWindow({
-      name: "My app window",
-    width: 500,
-    height: 250,
-    transparent: true,
-    toolbar: false,
-    frame: false
+
+    // Create the browser window.
+    var win = new BrowserWindow({
+        name: "My app window",
+        width: 450,
+        height: 230,
+        transparent: true,
+        toolbar: false,
+        frame: false,
     });
 
-  // and load the index.html of the app.
-  win.loadURL(`file://${__dirname}/index.html`);
 
-  // Emitted when the window is closed.
-  win.on('closed', () => {
+    win.setVisibleOnAllWorkspaces(true);
+
+    // and load the index.html of the app.
+    win.loadURL(appPath + 'index.html');
+
+    // Emitted when the window is closed.
+    win.on('closed', () => {
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
 
     win = null
-  })
+    })
 
-  return win;
+
+    return win;
 }
 
 
@@ -208,7 +229,6 @@ function startApp(){
 
     }
 
-
     setWatcher();
 
 
@@ -223,9 +243,7 @@ app.on('ready', startApp)
 app.on('window-all-closed', () => {
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
+  app.quit();
 })
 
 app.on('activate', () => {

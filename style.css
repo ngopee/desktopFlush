@@ -5,7 +5,6 @@ html, body {
 
 #title{
     width: 100%;
-    border: 1px solid black;
     border-radius: 7px 7px 0px 0px;
     background-color: rgba(10,10,30,0.75);
     text-align: center;
@@ -29,19 +28,18 @@ html, body {
     background: rgba(100,100,100,0.5);
     width: 100%;
     height: 100%;
-    border: 1px solid #aaaaaa;f
     overflow-y: scroll;
-
+    margin-bottom: 120px;
 }
 
 .folder{
-    margin-top: 10px;
     color: white;
     height: 70px;
     width: 60px;
     float: left;
     margin-left: 10px;
     padding: 5px 5px 5px 5px;
+    margin-bottom: 20px;
 }
 
 .folderButton{
@@ -61,8 +59,9 @@ html, body {
 }
 
 #settingsButton{
-    width: 20px;
-    height: 20px;
+    margin-top: 2px;
+    width: 17px;
+    height: 17px;
     float: right;
     margin-right: 10px;
 }

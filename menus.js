@@ -1,5 +1,7 @@
 
 const remote = require('electron').remote;
+let $ = require("jquery");
+
 
 const {Menu, MenuItem} = remote
 
@@ -43,7 +45,6 @@ const colors = new MenuItem({
         {
             label: "Red",
             click: () => {
-                console.log(document.getElementById("box"));
                 document.getElementById("box").style.backgroundColor = "rgba(232, 22, 22, 0.57)";
             }
         },
@@ -66,7 +67,7 @@ const colors = new MenuItem({
 var reduce = new MenuItem({
     label: 'Reduce',
     click: () => {
-        document.getElementById("box").style.display = "none";
+        $('#box').slideUp(250);
         settingsMenu = settings2;
     }
 })
@@ -74,12 +75,11 @@ var reduce = new MenuItem({
 var expand = new MenuItem({
     label: 'Expand',
     click: () => {
-        document.getElementById("box").style.display = "block";
+        $('#box').slideDown(250);
         settingsMenu = settings1;
 
     }
 })
-
 
 settings1.append(AddGroupItem);
 settings1.append(reduce);
