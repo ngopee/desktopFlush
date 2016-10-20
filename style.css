@@ -2,11 +2,10 @@
 
 html, body {
     background: rgba(0, 0, 0, 0);
-    overflow: hidden;
 }
 
-.fa-angle-down {
-  color: white;
+body{
+    overflow-y: hidden;
 }
 
 #title{
@@ -15,8 +14,6 @@ html, body {
     background-color: rgba(10,10,30,0.75);
     text-align: center;
     color: white;
-
-    overflow: hidden;
     -webkit-app-region: drag;
 }
 
@@ -34,8 +31,7 @@ html, body {
     background: rgba(100,100,100,0.5);
     width: 100%;
     height: 100%;
-    overflow-y: scroll;
-    margin-bottom: 120px;
+    overflow-y: auto;
 }
 
 .folder{
@@ -44,8 +40,9 @@ html, body {
     width: 60px;
     float: left;
     margin-left: 10px;
-    padding: 5px 5px 5px 5px;
     margin-bottom: 20px;
+    padding: 5px 5px 5px 5px;
+
 }
 
 .folderButton{
@@ -59,6 +56,7 @@ html, body {
 .fileNameElement{
     cursor: default;
     margin: 5 auto;
+    margin-bottom: 20px;
     border-radius: 3px;
     text-align: center;
     -webkit-user-select: none;

@@ -45,7 +45,6 @@ const colors = new MenuItem({
         {
             label: "Red",
             click: () => {
-                document.getElementById("box").style.backgroundColor = "rgba(232, 22, 22, 0.57)";
                 document.getElementById("box").style.backgroundColor = "rgba(232, 22, 22, 0.8)";
             }
         },

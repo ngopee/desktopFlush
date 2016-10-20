@@ -7,8 +7,12 @@ const fse = require("fs-extra")
 const app = remote.app;
 const notifier = require('node-notifier');
 const ipcRenderer =  require("electron").ipcRenderer;
+const plist = require("plist");
+const iconutil = require("iconutil");
+const path = require("path");
 
 var desktopPath = app.getPath('desktop');
+
 
 var groupName;
 var rightClickPosition = null
@@ -40,7 +44,7 @@ function setWatcher(){
          ignored: /[\/\\]\./,
          ignoreInitial: true,
          persistent: true,
-         depth: 1
+         depth: 0
      });
 
     //  // Declare the listeners of the watcher
@@ -117,20 +121,19 @@ function initFolders(){
     var index = getWindowIndex(remote.getCurrentWindow());
 
     groupName = remote.getGlobal('sharedObj').titles[index];
-    console.log(index);
-    console.log(groupName);
-    console.log(remote.getGlobal('sharedObj').titles);
+
     document.getElementById("titleText").value = groupName;  // set the title of the group
 
     var srcPath = desktopPath + "/test/" + groupName;
 
-    var files =  fse.readdirSync(srcPath).filter(function(file) {
+    var files =  fse.readdirSync(srcPath).filter(function(file) {  // filter hidden files (starting with .)
             return file[0]!=='.';
         });
 
     for (var i = 0; i < files.length; i++){
         var fileName = files[i];
-        addFolderButton(fileName, srcPath + "/" + fileName);
+        var filePath = srcPath + "/" + fileName;
+        addFolderButton(fileName, filePath);
     }
 
     setWatcher();
@@ -153,6 +156,72 @@ function modifyFileName(fileName){
     return fileName;
 }
 
+
+function setIcon(newFolder, filePath){
+
+    var extension = path.extname(filePath);
+    console.log(extension);
+
+    if (fse.statSync(filePath).isDirectory()) {
+        if (extension == ".app"){
+            isApp = true;
+            var obj = plist.parse(fse.readFileSync(filePath + "/Contents/Info.plist", 'utf8'));
+            var iconFileName = obj['CFBundleIconFile'];
+
+            var iconPath = filePath + "/Contents/Resources/" + iconFileName;
+
+            if (iconFileName.substr(iconFileName.length - 5) !== '.icns'){
+                iconPath = iconPath + '.icns';
+            }
+
+            iconutil.toIconset(iconPath, function(err, icons) {
+                if (err) console.log("ERR", err);
+                console.log(icons);
+                console.log(newFolder);
+                var listOfIcons = Object.keys(icons);
+                var iconName = listOfIcons[listOfIcons.length - 1];
+                var buff = icons[iconName].toString('base64');
+                 newFolder.src = 'data:image/png;base64,' + buff;
+
+
+            });
+        } else{
+            newFolder.src = "./icons/GenericFolderIcon.png";
+        }
+    }
+    else{  // it is a file, get the file icon
+        switch(extension){
+            case ".pdf":
+                newFolder.src = "./icons/pdf.png";
+                break;
+            case ".pages":
+                newFolder.src = "./icons/PagesDocument.png";
+                break;
+            case ".numbers":
+                newFolder.src = "./icons/NumbersDocument.png";
+                break;
+            case ".key":
+                newFolder.src = "./icons/KeyDocument.png";
+                break;
+            case ".txt":
+                newFolder.src = "./icons/txt.png";
+                break;
+            case ".png":
+            case ".jpg":
+            case ".jpeg":
+                newFolder.src = filePath;
+                break;
+            default:
+                newFolder.src = "./icons/Settings.png";
+                break;
+        }
+
+    }
+
+
+
+}
+
 // creating the folder and add it to the app
 function addFolderButton(fileName, newFilePath){
     // create the button that links it
@@ -165,7 +234,9 @@ function addFolderButton(fileName, newFilePath){
     fileNameElement.innerHTML = modifyFileName(fileName);
 
     var newFolderButton = document.createElement("img"); // the button that will run on clicking it
-    newFolderButton.src = "./icons/GenericFolderIcon.png";
+
+    setIcon(newFolderButton, newFilePath);
+
     newFolderButton.setAttribute("draggable", false);
     newFolderButton.className = "folderButton";
 
@@ -219,12 +290,13 @@ function addFolder(event){
 
     fse.move(filePath, newFilePath, function (err) {  // move from original location to the new one
           if (err) return console.error(err)
-          console.log("success!")
-    })
+          console.log("success!");
+          addFolderButton(fileName, newFilePath); // create the button and add it
 
-    addFolderButton(fileName, newFilePath); // create the button and add it
+          foldersDict[fileName] = [filePath, newFilePath]; //tuple of the orginal path and new path
+    });
 
-    foldersDict[fileName] = [filePath, newFilePath]; //tuple of the orginal path and new path
+
 }
 
 // remove the button from the DOM
