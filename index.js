@@ -10,6 +10,9 @@ const ipcRenderer =  require("electron").ipcRenderer;
 const plist = require("plist");
 const iconutil = require("iconutil");
 const path = require("path");
+const rmdir = require("rmdir");
+
+const MAIN_DIR = remote.getGlobal('sharedObj').appFolder;
 
 var desktopPath = app.getPath('desktop');
 
@@ -38,7 +41,7 @@ ipcRenderer.on('changeTitle' , function(event , data){
 // set watcher over the folder of that group
 function setWatcher(){
 
-    var path = desktopPath + "/test/" + groupName;
+    var path = desktopPath + "/" + MAIN_DIR + "/" + groupName;
 
      var watcher = chokidar.watch(path, {
          ignored: /[\/\\]\./,
@@ -58,7 +61,7 @@ function setWatcher(){
              return;
          }
 
-         var newPath = desktopPath + "/test/" + groupName + "/" + fileName;
+         var newPath = desktopPath + "/" + MAIN_DIR + "/" + groupName + "/" + fileName;
 
          foldersDict[fileName] = [desktopPath + "/" + fileName, newPath];
 
@@ -75,7 +78,7 @@ function setWatcher(){
              return;
          }
 
-         var newPath = desktopPath + "/test/" + groupName + "/" + fileName;
+         var newPath = desktopPath + "/" + MAIN_DIR + "/" + groupName + "/" + fileName;
 
          foldersDict[fileName] = [desktopPath + "/" + fileName, newPath];
 
@@ -124,7 +127,7 @@ function initFolders(){
 
     document.getElementById("titleText").value = groupName;  // set the title of the group
 
-    var srcPath = desktopPath + "/test/" + groupName;
+    var srcPath = desktopPath + "/" + MAIN_DIR + "/" + groupName;
 
     var files =  fse.readdirSync(srcPath).filter(function(file) {  // filter hidden files (starting with .)
             return file[0]!=='.';
@@ -149,44 +152,49 @@ function setCharsAt(str,index1, index2) {
 
 function modifyFileName(fileName){
     var strLength = fileName.length;
-    if (strLength > 10){
-
+    if (strLength > 20){
         return fileName.substr(0,4) + "..." + fileName.substr(strLength-4);
+    }
+    else if (strLength > 10 && fileName.indexOf(" ") < 0){
+        return fileName.substr(0, 10) + "\n" + fileName.substr(10);
     }
     return fileName;
 }
 
 
 function setIcon(newFolder, filePath){
-
+     // get the extension for the file - if folder no extension and if app it will be .app
     var extension = path.extname(filePath);
-    console.log(extension);
 
+    // check if the new element is a directory
     if (fse.statSync(filePath).isDirectory()) {
-        if (extension == ".app"){
-            isApp = true;
-            var obj = plist.parse(fse.readFileSync(filePath + "/Contents/Info.plist", 'utf8'));
-            var iconFileName = obj['CFBundleIconFile'];
+        if (extension == ".app"){ // if it is an app
+            var obj = plist.parse(fse.readFileSync(filePath + "/Contents/Info.plist", 'utf8')); // parse the plist to get the name of the icon
+            var iconFileName = obj['CFBundleIconFile']; // get the icon name from the object returned by the plist
 
-            var iconPath = filePath + "/Contents/Resources/" + iconFileName;
+            var iconPath = filePath + "/Contents/Resources/" + iconFileName; //the path for the icon file
 
-            if (iconFileName.substr(iconFileName.length - 5) !== '.icns'){
+            if (iconFileName.substr(iconFileName.length - 5) !== '.icns'){  // if it didn't have .icns already in the plist then add it to the path
                 iconPath = iconPath + '.icns';
             }
 
+             // convert the icns to png data to be able to use it in html
             iconutil.toIconset(iconPath, function(err, icons) {
-                if (err) console.log("ERR", err);
-                console.log(icons);
-                console.log(newFolder);
+                if (err){   // if there was an error, print it and return
+                    console.log("ERR", err);
+                    return;
+                }
+                // get the list of the icons from iconset
                 var listOfIcons = Object.keys(icons);
+                // get the last icon
                 var iconName = listOfIcons[listOfIcons.length - 1];
                 var buff = icons[iconName].toString('base64');
-                 newFolder.src = 'data:image/png;base64,' + buff;
+                 newFolder.src = 'data:image/png;base64,' + buff; // set the source to the data of png
 
 
             });
-        } else{
-            newFolder.src = "./icons/GenericFolderIcon.png";
+        } else{ // if it is a normal folder, show the regular folder icon
+             newFolder.src = "./icons/GenericFolderIcon.png";
         }
     }
     else{  // it is a file, get the file icon
@@ -249,7 +257,7 @@ function addFolderButton(fileName, newFilePath){
 
     var c = this;
     newFolder.ondblclick = function(){
-        var newFilePath = desktopPath + "/test/" + groupName + "/" + fileName;    // the new path (inside a folder on the desktop)
+        var newFilePath = desktopPath + "/" + MAIN_DIR + "/" + groupName + "/" + fileName;    // the new path (inside a folder on the desktop)
 
         console.log(newFilePath);
         shell.openItem(newFilePath)  // opens it in the new file name path
@@ -258,6 +266,7 @@ function addFolderButton(fileName, newFilePath){
     newFolder.onclick = function(){
         if (clickedFolderButton != null){
             clickedFolderButton.style.backgroundColor = "transparent";
+            clickedFolderButton.style.border = "0px";
             clickedFolderText.style.backgroundColor = "transparent";
 
         }
@@ -265,7 +274,8 @@ function addFolderButton(fileName, newFilePath){
         clickedFolderButton = newFolderButton;
         clickedFolderText = fileNameElement;
 
-        newFolderButton.style.backgroundColor = "gray";
+        // newFolderButton.style.backgroundColor = "gray";
+        newFolderButton.style.border = "2px solid rgb(124, 123, 125)";
         fileNameElement.style.backgroundColor = "blue";
 
     }
@@ -286,7 +296,7 @@ function addFolder(event){
     var fileName = filePath.split("/");
     var fileName = fileName[fileName.length - 1];
 
-    var newFilePath = desktopPath + "/test/" + groupName + "/" + fileName;    // the new path (inside a folder on the desktop)
+    var newFilePath = desktopPath + "/" + MAIN_DIR + "/" + groupName + "/" + fileName;    // the new path (inside a folder on the desktop)
 
     fse.move(filePath, newFilePath, function (err) {  // move from original location to the new one
           if (err) return console.error(err)
@@ -306,13 +316,18 @@ function removeButton(buttonName) {
 }
 
 //function to remove folder from window and put it back on desktop
-function removeFolder(){
-    var fileName = rightClickFolderID.split("__")[1];
+function removeFolder(fileNameID){
+    var fileName;
+    if (fileNameID == null)
+        fileName = rightClickFolderID.split("__")[1];
+    else{
+        fileName = fileNameID.split("__")[1];
+    }
 
     // if it is in the data structure, move it to the original place, otherwise move it to the desktop
     if (!foldersDict[fileName]){
         var oldPath = desktopPath + "/" + fileName;
-        var newPath = desktopPath + "/test/" + groupName + "/" + fileName;
+        var newPath = desktopPath + "/" + MAIN_DIR + "/" + groupName + "/" + fileName;
     } else{
         var oldPath = foldersDict[fileName][0];
         var newPath = foldersDict[fileName][1];
@@ -335,21 +350,29 @@ function removeFolder(){
 
 }
 
+function removeGroup(){
+    var folders = document.querySelectorAll(".folder");
+
+    for (var i = 0; i < folders.length; i++){
+        removeFolder(folders[i].id);
+    }
+
+    var groupName = document.querySelector("#titleText").innerHTML;
+
+    var path = desktopPath + "/" + MAIN_DIR + "/" + groupName;
+    console.log(path);
+
+    rmdir(path, function(err, dirs, files){
+        console.log("err", err);
+        console.log(dirs);
+        console.log(files);
+    });
+}
+
 // to ignore events
 function ignoreEvent(event){
     event.preventDefault();
 }
-
-
-// // show settings button when hovering over the title
-// function showSettings(){
-//     document.querySelector("#settingsButton").style.visibility = 'visible';
-// }
-//
-// // hide settings button when outside the title bar
-// function hideSettings(){
-//     document.querySelector("#settingsButton").style.visibility = 'hidden';
-// }
 
 function showSettingsMenu(){
     settingsMenu.popup(remote.getCurrentWindow()) // show the menu
@@ -365,11 +388,11 @@ function saveNewTitle(){
 
     var updatedTitle = document.querySelector("#titleText").value;
 
-    var oldName = desktopPath + "/test/" + groupName;
-    var newName = desktopPath + "/test/" + updatedTitle;
+    var oldName = desktopPath + "/" + MAIN_DIR + "/" + groupName;
+    var newName = desktopPath + "/" + MAIN_DIR + "/" + updatedTitle;
 
     fse.rename(oldName, newName, function(err){
-        if (err) throw err;
+        if (err) console.log("err: ", err);
     });
 
     groupName = updatedTitle;

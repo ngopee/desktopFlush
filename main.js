@@ -3,7 +3,9 @@ const {app, BrowserWindow} = require('electron')
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 
-global.sharedObj = {windows: [], titles:[]};
+global.sharedObj = {windows: [], titles:[], appFolder: 'test'};
+
+const MAIN_DIR = global.sharedObj.appFolder;
 
 exports.newWindow = newWindow;
 exports.getWindowIndex = getWindowIndex;
@@ -14,12 +16,14 @@ const chokidar = require("chokidar");
 
 const appPath = `file://${__dirname}/`;
 const desktopPath = app.getPath('desktop');
-const mainFolderPath = desktopPath + "/test/";
+const mainFolderPath = desktopPath + "/" + MAIN_DIR + "/";
 
 
 var renamedFolderTitle = "";
 
 var justCreated = false;
+
+var watcher;
 
 // to add it to the top bar
 // var menubar = require('menubar')
@@ -69,11 +73,14 @@ function getWindowIndexByName(folderName){
     return -1;
 }
 
+function unWatchMain(){
+    watcher.close();
+}
 
 function setWatcher(){
-    var path = desktopPath + "/test/";
+    var path = mainFolderPath;
 
-     var watcher = chokidar.watch(path, {
+     watcher = chokidar.watch(path, {
          ignored: /[\/\\]\./,
          ignoreInitial: true,
          persistent: true,
@@ -96,7 +103,7 @@ function setWatcher(){
          var numOfGroups = getNumOfGroups();
 
          if (numOfGroups == global.sharedObj.windows.length){
-             var index = getWindowIndex(renamedFolderTitle);
+             var index = getWindowIndexByName(renamedFolderTitle);
 
              if (index == -1){
                  console.log("error");
@@ -104,7 +111,6 @@ function setWatcher(){
              }
 
              global.sharedObj.titles[index] = fileName;  //renaming of title
-             console.log("rename window from ", renamedFolderTitle, "to ", fileName);
 
              global.sharedObj.windows[index].webContents.send("changeTitle", {newTitle: fileName});
 
@@ -153,7 +159,6 @@ function setWatcher(){
     //  .on('ready', onWatcherReady)
      .on('raw', function(event, path, details) {
           // This event should be triggered everytime something happens.
-          console.log('Raw event info:', event, path, details);
      });
 }
 

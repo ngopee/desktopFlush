@@ -11,7 +11,7 @@ const menu = new Menu()
 const menuItem = new MenuItem({
   label: 'remove folder',
   click: () => {
-      removeFolder();  // remove folder on clicking on remove folder
+      removeFolder(null);  // remove folder on clicking on remove folder
 
   }
 })
@@ -45,19 +45,19 @@ const colors = new MenuItem({
         {
             label: "Red",
             click: () => {
-                document.getElementById("box").style.backgroundColor = "rgba(232, 22, 22, 0.8)";
+                document.getElementById("box").style.backgroundColor = "rgba(232, 22, 22, 0.75)";
             }
         },
         {
             label: "Gray",
             click: () => {
-                document.getElementById("box").style.backgroundColor = "rgba(100,100,100,0.8)";
+                document.getElementById("box").style.backgroundColor = "rgba(100,100,100,0.75)";
             }
         },
         {
             label: "Blue",
             click: () => {
-                document.getElementById("box").style.backgroundColor = "rgba(22,22,232,0.8)";
+                document.getElementById("box").style.backgroundColor = "rgba(22,22,232,0.75)";
             }
         },
     ]
@@ -81,10 +81,19 @@ var expand = new MenuItem({
     }
 })
 
+const remove_group = new MenuItem({
+    label: 'Delete Group',
+    click: () => {
+        removeGroup();
+    }
+})
+
 settings1.append(AddGroupItem);
+settings1.append(remove_group);
 settings1.append(reduce);
 settings1.append(colors);
 
 settings2.append(AddGroupItem);
+settings2.append(remove_group);
 settings2.append(expand);
 settings2.append(colors);
