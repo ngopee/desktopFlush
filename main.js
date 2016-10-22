@@ -225,13 +225,15 @@ function startApp(){
             for(var i=0; i<folders.length; i++){
                 newWindow(folders[i]);
             }
+
+            if (folders.length == 0){
+                newWindow(null);
+            }
         }
     }
     catch (e){
         fse.mkdirSync(mainFolderPath); // create the main folder
-
         newWindow(null);
-
     }
 
     setWatcher();

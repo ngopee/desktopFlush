@@ -353,12 +353,15 @@ function removeFolder(fileNameID){
 function removeGroup(){
     var folders = document.querySelectorAll(".folder");
 
+    console.log(folders);
+
     for (var i = 0; i < folders.length; i++){
         removeFolder(folders[i].id);
     }
 
-    var groupName = document.querySelector("#titleText").innerHTML;
+    var groupName = document.querySelector("#titleText").value;
 
+    console.log(groupName);
     var path = desktopPath + "/" + MAIN_DIR + "/" + groupName;
     console.log(path);
 
