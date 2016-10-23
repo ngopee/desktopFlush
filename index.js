@@ -11,6 +11,8 @@ const plist = require("plist");
 const iconutil = require("iconutil");
 const path = require("path");
 const rmdir = require("rmdir");
+let $ = require("jquery");
+
 
 const MAIN_DIR = remote.getGlobal('sharedObj').appFolder;
 
@@ -399,6 +401,25 @@ function saveNewTitle(){
     });
 
     groupName = updatedTitle;
+}
+
+// reduce the size of the window
+function reduce(){
+    $('#box').slideUp(250); //slide it up (animation)
+
+    var button = document.querySelector("#expandReduce");
+    button.className = "fa fa-angle-down"; // change the icon shape
+
+    button.onclick = expand;  //change the onclick event to expand
+}
+
+// to show the window again after being reduced
+function expand(){
+    $('#box').slideDown(250); // animation to slide it down
+
+    var button = document.querySelector("#expandReduce");
+    button.className = "fa fa-angle-up";  // change the icon
+    button.onclick = reduce; // change the onclick event to reduce
 }
 
 

@@ -1,6 +1,5 @@
 
 const remote = require('electron').remote;
-let $ = require("jquery");
 
 
 const {Menu, MenuItem} = remote
@@ -25,10 +24,7 @@ menu.append(menuItem)
 // on the clicking on reduce i move to the expand one and vice versa
 
 
-const settings1 = new Menu(); // the one with reduce
-const settings2 = new Menu();  // the one with expand
-
-var settingsMenu = settings1;  // the menu to be shown
+const settingsMenu = new Menu(); // the one with reduce
 
 const AddGroupItem = new MenuItem({
     label: 'Add Group',
@@ -64,23 +60,6 @@ const colors = new MenuItem({
 })
 
 
-var reduce = new MenuItem({
-    label: 'Reduce',
-    click: () => {
-        $('#box').slideUp(250);
-        settingsMenu = settings2;
-    }
-})
-
-var expand = new MenuItem({
-    label: 'Expand',
-    click: () => {
-        $('#box').slideDown(250);
-        settingsMenu = settings1;
-
-    }
-})
-
 const remove_group = new MenuItem({
     label: 'Delete Group',
     click: () => {
@@ -88,12 +67,6 @@ const remove_group = new MenuItem({
     }
 })
 
-settings1.append(AddGroupItem);
-settings1.append(remove_group);
-settings1.append(reduce);
-settings1.append(colors);
-
-settings2.append(AddGroupItem);
-settings2.append(remove_group);
-settings2.append(expand);
-settings2.append(colors);
+settingsMenu.append(AddGroupItem);
+settingsMenu.append(remove_group);
+settingsMenu.append(colors);

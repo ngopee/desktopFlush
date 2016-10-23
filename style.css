@@ -66,10 +66,15 @@ body{
     -webkit-user-select: none;
 }
 
+#expandReduce{
+    float:left;
+    margin-left: 10px;
+    font-size: 1.3em;
+}
+
 #settingsButton{
     margin-top: 2px;
-    width: 17px;
-    height: 17px;
+    font-size: 1em;
     float: right;
     margin-right: 10px;
 }
