@@ -29,6 +29,8 @@ var foldersDict = {}; // dictionary holding name to a tuple of old path and new 
 var clickedFolderButton = null;
 var clickedFolderText = null;
 
+var watcher;
+
 // when main process sends changeTitle, change the title of the window with the new title
 ipcRenderer.on('changeTitle' , function(event , data){
                 console.log(data.newTitle);
@@ -59,7 +61,7 @@ function setWatcher(){
 
     var path = desktopPath + "/" + MAIN_DIR + "/" + groupName;
 
-     var watcher = chokidar.watch(path, {
+     watcher = chokidar.watch(path, {
          ignored: /[\/\\]\./,
          ignoreInitial: true,
          persistent: true,
@@ -328,6 +330,7 @@ function addFolder(event){
 
 // remove the button from the DOM
 function removeButton(buttonName) {
+    console.log(buttonName);
   var elem = document.getElementById("__" + buttonName);
   elem.parentNode.removeChild(elem);
 }
@@ -404,6 +407,7 @@ function enableTitleChange(){
 
 // to save the new group name
 function saveNewTitle(){
+    watcher.close();
     document.getElementById("titleText").disabled="true";
 
     var updatedTitle = document.querySelector("#titleText").value;
@@ -416,6 +420,7 @@ function saveNewTitle(){
     });
 
     groupName = updatedTitle;
+    setWatcher();
 }
 
 // reduce the size of the window

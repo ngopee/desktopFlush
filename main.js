@@ -146,6 +146,7 @@ function setWatcher(){
         console.log('File', path, 'has been added');
      })
      .on('addDir', function(path) {  //on adding a new dir
+         console.log(path + " is added");
          if (justCreated == true){   // if it is added  from the beginning normally..don't re-add it using the watcher
              justCreated = false;
              return;
@@ -207,6 +208,7 @@ function setWatcher(){
          // otherwise it is a renaming, save the name of the file that is being renamed to be able to
          // get it from the DOM when changing its name to the new name
          renamedFolderTitle = dirName;
+         console.log("renaming");
 
           console.log('Directory', path, 'has been removed');
      })
