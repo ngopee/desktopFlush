@@ -18,13 +18,11 @@ menu.append(menuItem)
 /////////////// end of right click menu .////////////
 
 
+
 /////////// settings menu ///////////////////
 
-// since we can't change labels dynamically, I have 2 menus, one with reduce and the other with expand
-// on the clicking on reduce i move to the expand one and vice versa
 
-
-const settingsMenu = new Menu(); // the one with reduce
+const settingsMenu = new Menu(); // the settings Menu
 
 const AddGroupItem = new MenuItem({
     label: 'Add Group',

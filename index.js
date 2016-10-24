@@ -36,9 +36,23 @@ ipcRenderer.on('changeTitle' , function(event , data){
                 document.querySelector("#titleText").value = groupName;
             });
 
+
+ipcRenderer.on("hello", function(event, data){
+    ipcRenderer.send("dockData", [groupName, getFolders()]);
+});
+
 /////////////////////////////////////////////
 
+function getFolders(){
+    var classes = document.querySelectorAll(".fileNameElement");
 
+    var folders = [];
+    for (var i = 0; i < classes.length; i++){
+        folders.push(classes[i].innerHTML);
+    }
+
+    return folders;
+}
 
 // set watcher over the folder of that group
 function setWatcher(){
@@ -142,6 +156,7 @@ function initFolders(){
     }
 
     setWatcher();
+
 
 }
 
@@ -427,12 +442,7 @@ function expand(){
 window.onbeforeunload = function onbeforeunload() {
     var data = [{'folders':foldersDict, 'title': groupName}];
 
-    fse.writeFile("data.txt", JSON.stringify(data), function(err) {
-        if(err) {
-            return console.log(err);
-        }
-
-        console.log("The file was saved!");
-    });
-
+    // var saveData = require('electron').remote.require('./main').saveData;
+    //
+    // saveData(data);
 };
