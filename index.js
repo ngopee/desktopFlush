@@ -33,14 +33,13 @@ var watcher;
 
 // when main process sends changeTitle, change the title of the window with the new title
 ipcRenderer.on('changeTitle' , function(event , data){
-                console.log(data.newTitle);
                 groupName = data.newTitle;
                 document.querySelector("#titleText").value = groupName;
             });
 
 
-ipcRenderer.on("hello", function(event, data){
-    ipcRenderer.send("dockData", [groupName, getFolders()]);
+ipcRenderer.on('getData', function(event, data){
+    ipcRenderer.send("myFolderData", [groupName, getFolders(), data.Win_index]);
 });
 
 /////////////////////////////////////////////

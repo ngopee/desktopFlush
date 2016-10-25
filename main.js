@@ -3,6 +3,7 @@ const fse = require("fs-extra");
 const path = require("path");
 const chokidar = require("chokidar");
 const shell = require("electron").shell;
+const storage = require('electron-json-storage');
 
 const appPath = `file://${__dirname}/`;
 const desktopPath = app.getPath('desktop');
@@ -21,22 +22,24 @@ exports.getWindowIndex = getWindowIndex;
 
 // app.setAboutPanelOptions({"applicationName": "Desktop Flush", "applicationVersion": '1.0.0', "credits":'John and Naassih'});
 
-var isWindowed = true;
+// appMode 0 is windowed, 1 is dockOnly
+var appMode = 0;
+
+var startingApp = true;
 
 var renamedFolderTitle = "";
 var vp = 0;
 
 var justCreated = false;
 
-var convertToDock = false;
 
 var watcher;
 
-// to add it to the top bar
+// // to add it to the top bar
 // var menubar = require('menubar')
 //
 //
-// var mb = menubar({'index': appPath + 'menubar/topmenu.html', 'width':400, 'height': 200});
+// var mb = menubar({'index': appPath + 'menubar/topmenu.html', 'width':400, 'height': 200, 'showDockIcon': true});
 //
 // mb.on('ready', function ready () {
 //    console.log("hello");
@@ -55,7 +58,6 @@ function createMenuList(groupName, data){
     var path = desktopPath + "/" + MAIN_DIR + "/" + groupName + "/";    // the new path (inside a folder on the desktop)
 
     for (var i = 0; i < data.length; i++){
-
         menu.append(new MenuItem({
             label: data[i],
             click: (item) => {
@@ -68,7 +70,10 @@ function createMenuList(groupName, data){
     return menu;
 }
 
-ipcMain.on("dockData", (event, data) => {
+ipcMain.on("myFolderData", (event, data) => {
+
+    console.log("receiving...");
+
     var menu = new MenuItem(
         {
             label: data[0],
@@ -78,6 +83,9 @@ ipcMain.on("dockData", (event, data) => {
 
     vp = vp - 1;
     dockMenu.push(menu);
+
+    // data[2] hold the index of the window
+    global.sharedObj.windows[data[2]].close();
 
     if (vp == 0){
         var mainDockMenu = Menu.buildFromTemplate([
@@ -196,12 +204,6 @@ function setWatcher(){
              var index = getWindowIndexByName(dirName); // get the index of the window
              global.sharedObj.windows[index].close(); // close the window
 
-             console.log(global.sharedObj.titles);
-
-             global.sharedObj.windows.splice(index, 1); // delete the window from the list
-             global.sharedObj.titles.splice(index, 1); // delete the title from the list
-
-            console.log(global.sharedObj.titles);
              return;
          }
 
@@ -233,10 +235,19 @@ function createWindow () {
         transparent: true,
         toolbar: false,
         frame: false,
+        show: false
     });
 
+    if (appMode == 0){
 
-    win.setVisibleOnAllWorkspaces(true);
+        win.once('ready-to-show', () => {
+            win.show();
+        });
+
+        win.setVisibleOnAllWorkspaces(true);
+
+        win.webContents.openDevTools();
+    }
 
     // and load the index.html of the app.
     win.loadURL(appPath + 'index.html');
@@ -246,8 +257,10 @@ function createWindow () {
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
-
-    win = null
+        var ind = getWindowIndex(win);
+        global.sharedObj.windows.splice(ind, 1);
+        global.sharedObj.titles.splice(ind, 1);
+        win = null
     })
 
 
@@ -264,14 +277,13 @@ function newWindow(title){
     }
 
     var win = createWindow();
-    // Open the DevTools.
-    win.webContents.openDevTools();
 
     global.sharedObj.windows.push(win);
     global.sharedObj.titles.push(title);
 }
 
-function startApp(){
+
+function initialize(){
     try{
         stats = fse.lstatSync(mainFolderPath);
 
@@ -299,6 +311,46 @@ function startApp(){
 
 }
 
+function startApp(){
+    startingApp = true;
+    storage.has("data", function (error, hasKey){
+        if (error){
+            console.log("ERROR CHECKING DATA");
+            return;
+        }
+
+        if (hasKey){
+            // if key is found get the data with the mode
+            storage.get("data", function(error, data){
+                console.log(data);
+                if (error){
+                    console.log("ERR Retrieving");
+                    initialize();
+                    return;
+                }
+                if (data["mode"] == "dock"){
+                    appMode = 1;
+                    initialize();
+                    dockOnly();
+                } else if (data["mode"] == "window"){
+                    appMode = 0;
+                    initialize();
+                    console.log("window");
+                }
+
+                startingApp = false;
+
+            })
+
+        } else{
+            initialize();
+            startingApp = false;
+        }
+
+    });
+
+}
+
 // function startTopMenu(){
 //     // to add it to the top bar
 //     var menubar = require('menubar')
@@ -311,37 +363,49 @@ function startApp(){
 // }
 
 function dockOnly(){
+    storage.set('data', {mode: 'dock'}, function (err){
+        if (err) console.log(error);
+    });
 
-    if (isWindowed == false){
+    if (appMode == 1 && !startingApp){
         return
     }
 
-    convertToDock = true;
+    appMode = 1;
 
     var windows = global.sharedObj.windows;
-
     vp = windows.length;
 
     for (var i = 0; i < windows.length; i++){
-        windows[i].webContents.send("hello", {});
+        if (windows[i].isVisible()){
+            windows[i].webContents.send('getData', {Win_index: i});
+        }
+        else {
+            windows[i].on('ready-to-show', (d) => { // if it wasn't ready yet, send the signal when it is ready
+                d.sender.send('getData', {Win_index:getWindowIndex(d.sender)});
+            });
+        }
 
-        windows[i].close();
+
     }
 
-    isWindowed = false;
 }
 
 function windowedApp(){
+    dockMenu = [];
 
-    if (isWindowed == true){
+    storage.set('data', {mode: 'window'}, function (err){
+        if (err) console.log(error);
+    });
+
+    if (appMode == 0 && !startingApp){
         return;
     }
 
+    appMode = 0;
     var menu = new Menu();
     app.dock.setMenu(menu);
-    startApp();
-
-    isWindowed = true;
+    initialize();
 }
 
 
@@ -387,8 +451,7 @@ app.on('ready', function (){
 app.on('window-all-closed', () => {
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
-  if (convertToDock == true){
-      convertToDock = false;
+  if (appMode != 0){
       return;
   }
   app.quit();
