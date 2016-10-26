@@ -1,10 +1,24 @@
 <html>
-<head>
-    
-</head>
-    <body>
+    <head>
+        <link rel="stylesheet" type="text/css" href="../style.css">
+        <link href="../node_modules/font-awesome/css/font-awesome.css" rel="stylesheet" type="text/css">
+        <script src="../menus.js"></script>
+        <script src="../index.js"></script>
+    </head>
+    <body onload="initFolders()">
 
-        <h2> Hello World</h2>
+        <div id="title" ondblclick="enableTitleChange()" >
+            <i class="fa fa-angle-up" id="expandReduce" aria-hidden="true" onclick="reduce()"></i>
+
+            <input type="text" id="titleText" value="Window 1" disabled="disabled"  onfocusout="saveNewTitle()"/>
+
+            <i class="fa fa-cog" aria-hidden="true" id="settingsButton" onclick="showSettingsMenu()" ></i>
+
+        </div>
+        <div id="box"  ondrop="addFolder(event)" ondragenter="ignoreEvent(event)" ondragover="ignoreEvent(event)" >
+
+        </div>
+
     </body>
 
 </html>
