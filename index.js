@@ -29,6 +29,8 @@ var foldersDict = {}; // dictionary holding name to a tuple of old path and new 
 var clickedFolderButton = null;
 var clickedFolderText = null;
 
+var itemsWaitingDeletion = 0;
+
 var watcher;
 
 // when main process sends changeTitle, change the title of the window with the new title
@@ -356,6 +358,11 @@ function removeFolder(fileNameID){
         if (err) return console.error(err)
         delete foldersDict[fileName]; // delete the folder from the dictionary
 
+        itemsWaitingDeletion -= 1;
+
+        if (itemsWaitingDeletion == 0)
+            deleteWindowFolder();
+
         // notification about where it was moved
         notifier.notify({
           title: 'Desktop Flush',
@@ -369,26 +376,31 @@ function removeFolder(fileNameID){
 
 }
 
-function removeGroup(){
-    var folders = document.querySelectorAll(".folder");
-
-    console.log(folders);
-
-    for (var i = 0; i < folders.length; i++){
-        removeFolder(folders[i].id);
-    }
+function deleteWindowFolder(){
 
     var groupName = document.querySelector("#titleText").value;
 
     console.log(groupName);
     var path = desktopPath + "/" + MAIN_DIR + "/" + groupName;
-    console.log(path);
 
     rmdir(path, function(err, dirs, files){
         console.log("err", err);
         console.log(dirs);
         console.log(files);
     });
+}
+
+function removeGroup(){
+    var folders = document.querySelectorAll(".folder");
+
+    console.log(folders);
+
+    for (var i = 0; i < folders.length; i++){
+        itemsWaitingDeletion += 1;
+        removeFolder(folders[i].id);
+    }
+
+
 }
 
 // to ignore events
