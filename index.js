@@ -346,17 +346,13 @@ function removeFolder(fileNameID){
     }
 
     // if it is in the data structure, move it to the original place, otherwise move it to the desktop
-    if (!foldersDict[fileName]){
-        var oldPath = desktopPath + "/" + fileName;
-        var newPath = desktopPath + "/" + MAIN_DIR + "/" + groupName + "/" + fileName;
-    } else{
-        var oldPath = foldersDict[fileName][0];
-        var newPath = foldersDict[fileName][1];
-    }
+    var oldPath = desktopPath + "/" + fileName;
+    var newPath = desktopPath + "/" + MAIN_DIR + "/" + groupName + "/" + fileName;
 
-  fse.move(newPath, oldPath, function (err) {  // move from original location to the new one
+
+
+    fse.move(newPath, oldPath, function (err) {  // move from original location to the new one
         if (err) return console.error(err)
-        delete foldersDict[fileName]; // delete the folder from the dictionary
 
         itemsWaitingDeletion -= 1;
 
@@ -453,12 +449,12 @@ function expand(){
     button.onclick = reduce; // change the onclick event to reduce
 }
 
-
-// before quitting the window, save the data structure
-window.onbeforeunload = function onbeforeunload() {
-    var data = [{'folders':foldersDict, 'title': groupName}];
-
-    // var saveData = require('electron').remote.require('./main').saveData;
-    //
-    // saveData(data);
-};
+//
+// // before quitting the window, save the data structure
+// window.onbeforeunload = function onbeforeunload() {
+//
+//
+//     // var saveData = require('electron').remote.require('./main').saveData;
+//     //
+//     // saveData(data);
+// };
