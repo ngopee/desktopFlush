@@ -1,0 +1,74 @@
+<html>
+    <head>
+
+    </head>
+    <body onload="init()">
+        <h2 id="title"> Welcome to DesktopFlush </h2>
+        <br>
+        <p id="desc">
+            We will help you remove all the crap from your desktop!
+        </p>
+        <br />
+        Desktop Folder Name: <input type="text" placeholder="DesktopFlush" />
+
+        <br>
+        Number of Groups:
+
+        <select name="numGroups" id="numGroupSelector">
+            <option value="" disabled selected>Number of Groups</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+        </select>
+
+        <br />
+
+        <div id="foldersCheckbox">
+
+        </div>
+
+        <br />
+        <button id="okButton"> OK </button>
+    </body>
+
+    <script>
+        const fse = require("fs-extra");
+        const remote = require("electron").remote
+
+
+        function init(){
+            var folders = fse.readdirSync(remote.getGlobal('sharedObj').desktopPath);
+
+            var checkboxes = document.querySelector("#foldersCheckbox");
+
+            for (var i = 0; i < folders.length; i++){
+                var checkboxContainer = document.createElement("div");
+                var checkBox = document.createElement("input");
+                checkBox.type="checkbox";
+                checkBox.value = folders[i];
+                checkBox.name = folders[i];
+                checkBox.id = "__" + folders[i];
+
+                var label = document.createElement("label");
+                label.htmlFor = "__" + folders[i];
+                label.innerHTML = folders[i];
+
+                checkboxContainer.appendChild(checkBox);
+                checkboxContainer.appendChild(label);
+
+                checkboxes.appendChild(checkboxContainer);
+            }
+
+
+            document.getElementById('numGroupSelector').onchange = function() {
+                console.log(this.value)
+
+            };
+        }
+
+
+    </script>
+
+</html>

@@ -33,6 +33,15 @@ var itemsWaitingDeletion = 0;
 
 var watcher;
 
+window.addEventListener("dragover",function(e){
+  e = e || event;
+  e.preventDefault();
+},false);
+window.addEventListener("drop",function(e){
+  e = e || event;
+  e.preventDefault();
+},false);
+
 // when main process sends changeTitle, change the title of the window with the new title
 ipcRenderer.on('changeTitle' , function(event , data){
                 groupName = data.newTitle;
@@ -151,6 +160,15 @@ function initFolders(){
     var files =  fse.readdirSync(srcPath).filter(function(file) {  // filter hidden files (starting with .)
             return file[0]!=='.';
         });
+
+    document.querySelector("#box").onclick = function(e){
+            if (clickedFolderButton != null){
+                clickedFolderButton.style.backgroundColor = "transparent";
+                clickedFolderButton.style.border = "0px";
+                clickedFolderText.style.backgroundColor = "transparent";
+
+            }
+        };
 
     for (var i = 0; i < files.length; i++){
         var fileName = files[i];
@@ -283,7 +301,8 @@ function addFolderButton(fileName, newFilePath){
         shell.openItem(newFilePath)  // opens it in the new file name path
     }
 
-    newFolder.onclick = function(){
+    newFolder.onclick = function(e){
+        e.stopPropagation();
         if (clickedFolderButton != null){
             clickedFolderButton.style.backgroundColor = "transparent";
             clickedFolderButton.style.border = "0px";
@@ -391,11 +410,15 @@ function removeGroup(){
 
     console.log(folders);
 
+    if (folders.length==0){
+        deleteWindowFolder();
+        return;
+    }
+
     for (var i = 0; i < folders.length; i++){
         itemsWaitingDeletion += 1;
         removeFolder(folders[i].id);
     }
-
 
 }
 

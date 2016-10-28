@@ -5,16 +5,17 @@ const chokidar = require("chokidar");
 const shell = require("electron").shell;
 const storage = require('electron-json-storage');
 
-const appPath = `file://${__dirname}/`;
-const desktopPath = app.getPath('desktop');
+const APP_PATH = `file://${__dirname}/`;
+
+const DESKTOP_PATH = app.getPath('desktop');
 
 const MAIN_DIR = 'test';
 
-const mainFolderPath = desktopPath + "/" + MAIN_DIR + "/";
+const mainFolderPath = DESKTOP_PATH + "/" + MAIN_DIR + "/";
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-global.sharedObj = {windows: [], titles:[], appFolder: MAIN_DIR};
+global.sharedObj = {windows: [], titles:[], appFolder: MAIN_DIR, desktopPath: DESKTOP_PATH};
 
 exports.newWindow = newWindow;
 exports.getWindowIndex = getWindowIndex;
@@ -39,7 +40,7 @@ var watcher;
 // var menubar = require('menubar')
 //
 //
-// var mb = menubar({'index': appPath + 'menubar/topmenu.html', 'width':400, 'height': 200, 'showDockIcon': true});
+// var mb = menubar({'index': APP_PATH + 'menubar/topmenu.html', 'width':400, 'height': 200, 'showDockIcon': true});
 //
 // mb.on('ready', function ready () {
 //    console.log("hello");
@@ -55,7 +56,7 @@ function createMenuList(groupName, data){
 
     var menu = new Menu();
 
-    var path = desktopPath + "/" + MAIN_DIR + "/" + groupName + "/";    // the new path (inside a folder on the desktop)
+    var path = DESKTOP_PATH + "/" + MAIN_DIR + "/" + groupName + "/";    // the new path (inside a folder on the desktop)
 
     for (var i = 0; i < data.length; i++){
         menu.append(new MenuItem({
@@ -223,6 +224,42 @@ function setWatcher(){
      });
 }
 
+function createPreference(){
+    // Create the browser window.
+    var win = new BrowserWindow({
+        name: "My app window",
+        width: 450,
+        height: 230,
+        show: false
+    });
+
+    if (appMode == 0){
+        win.once('ready-to-show', () => {
+            win.show();
+        });
+
+        win.setVisibleOnAllWorkspaces(true);
+
+        win.webContents.openDevTools();
+    }
+
+    // and load the index.html of the app.
+    win.loadURL(APP_PATH + 'index2.html');
+
+    // Emitted when the window is closed.
+    win.on('closed', () => {
+    // Dereference the window object, usually you would store windows
+    // in an array if your app supports multi windows, this is the time
+    // when you should delete the corresponding element.
+        var ind = getWindowIndex(win);
+        global.sharedObj.windows.splice(ind, 1);
+        global.sharedObj.titles.splice(ind, 1);
+        win = null
+    })
+
+
+    return win;
+}
 
 
 function createWindow () {
@@ -239,7 +276,6 @@ function createWindow () {
     });
 
     if (appMode == 0){
-
         win.once('ready-to-show', () => {
             win.show();
         });
@@ -250,7 +286,7 @@ function createWindow () {
     }
 
     // and load the index.html of the app.
-    win.loadURL(appPath + 'index.html');
+    win.loadURL(APP_PATH + 'index.html');
 
     // Emitted when the window is closed.
     win.on('closed', () => {
@@ -312,42 +348,51 @@ function initialize(){
 }
 
 function startApp(){
-    startingApp = true;
-    storage.has("data", function (error, hasKey){
-        if (error){
-            console.log("ERROR CHECKING DATA");
-            return;
-        }
 
-        if (hasKey){
-            // if key is found get the data with the mode
-            storage.get("data", function(error, data){
-                console.log(data);
+    storage.has("firstTime", function(err, runBefore){
+        if (!runBefore){
+        //     createPreference();
+        // } else{
+            startingApp = true;
+            storage.has("data", function (error, hasKey){
                 if (error){
-                    console.log("ERR Retrieving");
-                    initialize();
+                    console.log("ERROR CHECKING DATA");
                     return;
                 }
-                if (data["mode"] == "dock"){
-                    appMode = 1;
+
+                if (hasKey){
+                    // if key is found get the data with the mode
+                    storage.get("data", function(error, data){
+                        console.log(data);
+                        if (error){
+                            console.log("ERR Retrieving");
+                            initialize();
+                            return;
+                        }
+                        if (data["mode"] == "dock"){
+                            appMode = 1;
+                            initialize();
+                            dockOnly();
+                        } else if (data["mode"] == "window"){
+                            appMode = 0;
+                            initialize();
+                            console.log("window");
+                        }
+
+                        startingApp = false;
+
+                    })
+
+                } else{
                     initialize();
-                    dockOnly();
-                } else if (data["mode"] == "window"){
-                    appMode = 0;
-                    initialize();
-                    console.log("window");
+                    startingApp = false;
                 }
 
-                startingApp = false;
-
-            })
-
-        } else{
-            initialize();
-            startingApp = false;
+            });
         }
-
     });
+
+
 
 }
 
@@ -355,7 +400,7 @@ function startApp(){
 //     // to add it to the top bar
 //     var menubar = require('menubar')
 //
-//     var mb = menubar({'index': appPath + 'menubar/topmenu.html', 'width':400, 'height': 200});
+//     var mb = menubar({'index': APP_PATH + 'menubar/topmenu.html', 'width':400, 'height': 200});
 //
 //     mb.on('ready', function ready () {
 //        console.log("hello");
