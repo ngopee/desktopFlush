@@ -277,7 +277,13 @@ function addFolderButton(fileName, newFilePath){
 
     var fileNameElement = document.createElement("div");  // to have the name of the file
     fileNameElement.className = "fileNameElement";
-    fileNameElement.innerHTML = modifyFileName(fileName);
+
+    var nameHolder = document.createElement("span");
+    nameHolder.innerHTML = modifyFileName(fileName);
+    fileNameElement.appendChild(nameHolder);
+
+    var folderImgContainer = document.createElement("div");
+    folderImgContainer.className = "FolderIconContainer";
 
     var newFolderButton = document.createElement("img"); // the button that will run on clicking it
 
@@ -286,10 +292,13 @@ function addFolderButton(fileName, newFilePath){
     newFolderButton.setAttribute("draggable", false);
     newFolderButton.className = "folderButton";
 
+    folderImgContainer.appendChild(newFolderButton);
+
     newFolder.addEventListener('contextmenu', (e) => { // right click action
       e.preventDefault()
       rightClickPosition = {x: e.x, y: e.y}
-      rightClickFolderID = e['target'].parentNode.id;  // the name of the folder
+    //   rightClickFolderID = e['target'].parentNode.id;  // the name of the folder
+        rightClickFolderID = newFolder.id;
       menu.popup(remote.getCurrentWindow()) // show the menu
     }, false)
 
@@ -310,17 +319,21 @@ function addFolderButton(fileName, newFilePath){
 
         }
 
-        clickedFolderButton = newFolderButton;
-        clickedFolderText = fileNameElement;
+        clickedFolderButton = folderImgContainer;
+        clickedFolderText = nameHolder;
 
-        // newFolderButton.style.backgroundColor = "gray";
-        newFolderButton.style.border = "2px solid rgb(124, 123, 125)";
-        fileNameElement.style.backgroundColor = "blue";
+        folderImgContainer.style.borderRadius = "3px";
+        folderImgContainer.style.border = "2px solid rgb(124, 123, 125)";
+        folderImgContainer.style.backgroundColor = "rgb(50,50,50)";
+
+        nameHolder.style.borderRadius = '5px';
+        nameHolder.style.backgroundColor = "blue";
 
     }
 
 
-    newFolder.appendChild(newFolderButton);
+    newFolder.appendChild(folderImgContainer);
+    // newFolder.appendChild(newFolderButton);
     newFolder.appendChild(fileNameElement);
 
     document.querySelector("#box").appendChild(newFolder);

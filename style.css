@@ -10,6 +10,16 @@ body{
     overflow-y: hidden;
 }
 
+img {
+    position:absolute;
+    top:0;
+    bottom:0;
+    left: 0;
+    right: 0;
+
+    margin:auto;
+}
+
 #title{
     width: 100%;
     border-radius: 7px 7px 0px 0px;
@@ -38,32 +48,45 @@ body{
 
 .folder{
     color: white;
-    height: 70px;
-    width: 60px;
+    height: 50px;
+    width: 85px;
+    display: block;
     float: left;
-    margin-left: 10px;
     margin-bottom: 20px;
-    padding: 5px 5px 5px 5px;
+    padding: 5px 0px 5px 0px;
+
+}
+
+.folderIconContainer{
+    position: relative;
+    height: 50px;
+    margin-left: 10%;
+    width: 75%;
 
 }
 
 .folderButton{
-    width: 50px;
-    height: 50px;
-    margin: 0 auto;
-    display: block;
+    max-height: 50px;
+    max-width: 50px;
     -webkit-user-select: none;
-
 }
 
 
 .fileNameElement{
+    word-wrap: break-word;
+    align: justify;
     cursor: default;
-    margin: 5 auto;
+    margin-top: 2px;
     margin-bottom: 20px;
     border-radius: 3px;
     text-align: center;
     -webkit-user-select: none;
+}
+
+.fileNameElement span{
+    display: inline-block;
+    padding-left: 5px;
+    padding-right: 5px;
 }
 
 #expandReduce{
