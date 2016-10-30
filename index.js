@@ -277,12 +277,12 @@ function addFolderButton(fileName, newFilePath){
 
     var fileNameElement = document.createElement("div");  // to have the name of the file
     fileNameElement.className = "fileNameElement";
-
-    var nameHolder = document.createElement("span");
+    // not setting the name of the file as innerHTML to be able to adjust the size of colored area on click
+    var nameHolder = document.createElement("span"); // to have the name of the file
     nameHolder.innerHTML = modifyFileName(fileName);
     fileNameElement.appendChild(nameHolder);
 
-    var folderImgContainer = document.createElement("div");
+    var folderImgContainer = document.createElement("div");  // a div to hold the folder/file icon to fix image aspect ratio
     folderImgContainer.className = "FolderIconContainer";
 
     var newFolderButton = document.createElement("img"); // the button that will run on clicking it
@@ -310,7 +310,7 @@ function addFolderButton(fileName, newFilePath){
         shell.openItem(newFilePath)  // opens it in the new file name path
     }
 
-    newFolder.onclick = function(e){
+    newFolder.onclick = function(e){ // the select action when clicking on the folder
         e.stopPropagation();
         if (clickedFolderButton != null){
             clickedFolderButton.style.backgroundColor = "transparent";

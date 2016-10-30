@@ -1,6 +1,6 @@
 <html>
     <head>
-
+        <link rel="stylesheet" type="text/css" href="pref_style.css">
     </head>
     <body onload="init()">
         <h2 id="title"> Welcome to DesktopFlush </h2>
@@ -25,12 +25,16 @@
 
         <br />
 
+        <div id="windowNames">
+
+        </div>
+
         <div id="foldersCheckbox">
 
         </div>
 
         <br />
-        <button id="okButton"> OK </button>
+        <button id="okButton" onclick="start()"> OK </button>
     </body>
 
     <script>
@@ -39,33 +43,58 @@
 
 
         function init(){
-            var folders = fse.readdirSync(remote.getGlobal('sharedObj').desktopPath);
+            var folders = fse.readdirSync(remote.getGlobal('sharedObj').desktopPath).filter(function (f){
+                return f[0]!='.';
+            });
 
             var checkboxes = document.querySelector("#foldersCheckbox");
 
-            for (var i = 0; i < folders.length; i++){
-                var checkboxContainer = document.createElement("div");
-                var checkBox = document.createElement("input");
-                checkBox.type="checkbox";
-                checkBox.value = folders[i];
-                checkBox.name = folders[i];
-                checkBox.id = "__" + folders[i];
+            document.getElementById('numGroupSelector').onchange = function() {
+                var numOfGroups = this.value;
+                checkboxes.innerHTML = "";
 
-                var label = document.createElement("label");
-                label.htmlFor = "__" + folders[i];
-                label.innerHTML = folders[i];
+                var windowsDiv = document.querySelector("#windowNames");
+                windowsDiv.innerHTML = "";
 
-                checkboxContainer.appendChild(checkBox);
-                checkboxContainer.appendChild(label);
+                for (var i = 0; i < numOfGroups; i++){
+                    var windowNameInput = document.createElement("input");
+                    windowNameInput.type = "text";
+                    windowNameInput.setAttribute("placeholder", "Window " + (i+1));
+                    windowNameInput.id = "windowName" + (i+1);
+                    windowNameInput.className = "windowNameInput";
+                    windowsDiv.appendChild(windowNameInput);
+                }
 
-                checkboxes.appendChild(checkboxContainer);
+                for (var i = 0; i < folders.length; i++){
+                    var checkboxContainer = document.createElement("div");
+
+                    for (var j = 0; j < numOfGroups; j++){
+                        var checkBox = document.createElement("input");
+                        checkBox.type="checkbox";
+                        checkBox.value = folders[i];
+                        checkBox.name = "Window" + j;
+                        checkBox.id = "__" + folders[i] + "_Window" + j;
+                        checkBox.className = "checkbox";
+                        checkboxContainer.appendChild(checkBox);
+
+                    }
+                    var label = document.createElement("label");
+                    label.htmlFor = "__" + folders[i];
+                    label.innerHTML = folders[i];
+
+                    checkboxContainer.appendChild(label);
+
+                    checkboxes.appendChild(checkboxContainer);
+                }
+            };
+        }
+
+        function start(){
+            var checkedBoxes = document.querySelectorAll('input[name=Window0]:checked');
+            for (var i = 0; i < checkedBoxes.length; i++){
+                console.log(checkedBoxes[i].value);
             }
 
-
-            document.getElementById('numGroupSelector').onchange = function() {
-                console.log(this.value)
-
-            };
         }
 
 

@@ -228,21 +228,18 @@ function createPreference(){
     // Create the browser window.
     var win = new BrowserWindow({
         name: "My app window",
-        width: 450,
-        height: 230,
+        width: 750,
+        height: 450,
         show: false
     });
 
-    if (appMode == 0){
-        win.once('ready-to-show', () => {
-            win.show();
-        });
+    win.once('ready-to-show', () => {
+        win.show();
+    });
 
-        win.setVisibleOnAllWorkspaces(true);
+    win.setVisibleOnAllWorkspaces(true);
 
-        win.webContents.openDevTools();
-    }
-
+    win.webContents.openDevTools();
     // and load the index.html of the app.
     win.loadURL(APP_PATH + 'index2.html');
 
@@ -351,8 +348,8 @@ function startApp(){
 
     storage.has("firstTime", function(err, runBefore){
         if (!runBefore){
-        //     createPreference();
-        // } else{
+            createPreference();
+        } else{
             startingApp = true;
             storage.has("data", function (error, hasKey){
                 if (error){
