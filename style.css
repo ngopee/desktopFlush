@@ -48,12 +48,12 @@ img {
 
 .folder{
     color: white;
-    height: 50px;
-    width: 85px;
+    height: 60px;
+    width: 90px;
     display: block;
     float: left;
-    margin-bottom: 20px;
-    padding: 5px 0px 5px 0px;
+    /*margin-right: 10px;*/
+    padding: 10px 10px 30px 5px;
 
 }
 
@@ -74,10 +74,9 @@ img {
 
 .fileNameElement{
     word-wrap: break-word;
-    align: justify;
     cursor: default;
     margin-top: 2px;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
     border-radius: 3px;
     text-align: center;
     -webkit-user-select: none;
@@ -86,7 +85,6 @@ img {
 .fileNameElement span{
     display: inline-block;
     padding-left: 5px;
-    padding-right: 5px;
 }
 
 #expandReduce{
