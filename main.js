@@ -348,8 +348,8 @@ function startApp(){
 
     storage.has("firstTime", function(err, runBefore){
         if (!runBefore){
-            createPreference();
-        } else{
+//            createPreference();
+//        } else{
             startingApp = true;
             storage.has("data", function (error, hasKey){
                 if (error){
