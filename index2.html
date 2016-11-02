@@ -9,7 +9,7 @@
             We will help you remove all the crap from your desktop!
         </p>
         <br />
-        Desktop Folder Name: <input type="text" placeholder="DesktopFlush" />
+        Desktop Folder Name: <input id="desktopFolderName" type="text" placeholder="DesktopFlush" />
 
         <br>
         Number of Groups:
@@ -41,22 +41,34 @@
         const fse = require("fs-extra");
         const remote = require("electron").remote
 
+        var batchedWindowCreating = require('electron').remote.require('./main').batchedWindowCreating;
+
+        var folders; // a list of the folders on the desktop
+
+         //list of the windows, (each index is an object with the info about that window: title, and folders in it).
+         // To be sent to the main to create the windows
+        var data = [];
 
         function init(){
-            var folders = fse.readdirSync(remote.getGlobal('sharedObj').desktopPath).filter(function (f){
+            folders = fse.readdirSync(remote.getGlobal('sharedObj').desktopPath).filter(function (f){
                 return f[0]!='.';
             });
 
-            var checkboxes = document.querySelector("#foldersCheckbox");
+            var radioButtons = document.querySelector("#foldersCheckbox");
 
             document.getElementById('numGroupSelector').onchange = function() {
+                data = [];
                 var numOfGroups = this.value;
-                checkboxes.innerHTML = "";
+                radioButtons.innerHTML = "";
 
                 var windowsDiv = document.querySelector("#windowNames");
                 windowsDiv.innerHTML = "";
 
                 for (var i = 0; i < numOfGroups; i++){
+                    data.push([]);
+                    data[i] = {};
+                    data[i]["windowTitle"] = "";
+                    data[i]["folders"] = [];
                     var windowNameInput = document.createElement("input");
                     windowNameInput.type = "text";
                     windowNameInput.setAttribute("placeholder", "Window " + (i+1));
@@ -66,34 +78,59 @@
                 }
 
                 for (var i = 0; i < folders.length; i++){
-                    var checkboxContainer = document.createElement("div");
+                    var radioButtonContainer = document.createElement("div");
 
                     for (var j = 0; j < numOfGroups; j++){
-                        var checkBox = document.createElement("input");
-                        checkBox.type="checkbox";
-                        checkBox.value = folders[i];
-                        checkBox.name = "Window" + j;
-                        checkBox.id = "__" + folders[i] + "_Window" + j;
-                        checkBox.className = "checkbox";
-                        checkboxContainer.appendChild(checkBox);
+                        var radioButton = document.createElement("input");
+                        radioButton.type="radio";
+                        radioButton.value = (j + 1);
+                        radioButton.name = folders[i];
+                        radioButton.id = "__" + folders[i] + "_Window" + j;
+                        radioButton.className = "radioButton";
+                        radioButtonContainer.appendChild(radioButton);
 
                     }
                     var label = document.createElement("label");
                     label.htmlFor = "__" + folders[i];
                     label.innerHTML = folders[i];
 
-                    checkboxContainer.appendChild(label);
+                    radioButtonContainer.appendChild(label);
 
-                    checkboxes.appendChild(checkboxContainer);
+                    radioButtons.appendChild(radioButtonContainer);
                 }
             };
         }
 
         function start(){
-            var checkedBoxes = document.querySelectorAll('input[name=Window0]:checked');
-            for (var i = 0; i < checkedBoxes.length; i++){
-                console.log(checkedBoxes[i].value);
+            var folderName = document.getElementById("desktopFolderName").value;
+
+            if (folderName != ""){
+                remote.getGlobal("sharedObj").appFolder = folderName;
             }
+
+            console.log(data);
+            for (var i = 0; i < folders.length; i++){
+                var radioButtons = document.getElementsByName(folders[i]);
+                console.log(radioButtons);
+                for (var j = 0; j < radioButtons.length; j++){
+                    var windowNum = radioButtons[j].value;
+
+                    data[windowNum-1]["windowTitle"] = document.getElementById("windowName" + windowNum).value;
+
+                    if (radioButtons[j].checked){
+                        data[windowNum-1]["folders"].push(folders[i]);
+                        // console.log(folders[i] + "-> " + radioButtons[j].value);
+                    }
+                }
+
+            }
+            console.log(data);
+
+            batchedWindowCreating(data);
+            // var radioButtons = document.querySelectorAll('input[name=Screenshot]:checked');
+            // for (var i = 0; i < radioButtons.length; i++){
+            //     console.log(radioButtons[i].value);
+            // }
 
         }
 

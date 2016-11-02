@@ -11,15 +11,20 @@ const DESKTOP_PATH = app.getPath('desktop');
 
 const MAIN_DIR = 'test';
 
-const mainFolderPath = DESKTOP_PATH + "/" + MAIN_DIR + "/";
-
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 global.sharedObj = {windows: [], titles:[], appFolder: MAIN_DIR, desktopPath: DESKTOP_PATH};
 
 exports.newWindow = newWindow;
 exports.getWindowIndex = getWindowIndex;
+exports.batchedWindowCreating = batchedWindowCreating;
 
+
+function getMainFolderPath(){
+    return DESKTOP_PATH + "/" + global.sharedObj.appFolder + "/";
+}
+
+require('electron-reload')(__dirname);
 
 // app.setAboutPanelOptions({"applicationName": "Desktop Flush", "applicationVersion": '1.0.0', "credits":'John and Naassih'});
 
@@ -56,7 +61,7 @@ function createMenuList(groupName, data){
 
     var menu = new Menu();
 
-    var path = DESKTOP_PATH + "/" + MAIN_DIR + "/" + groupName + "/";    // the new path (inside a folder on the desktop)
+    var path = DESKTOP_PATH + "/" + global.sharedObj.appFolder + "/" + groupName + "/";    // the new path (inside a folder on the desktop)
 
     for (var i = 0; i < data.length; i++){
         menu.append(new MenuItem({
@@ -104,8 +109,8 @@ ipcMain.on("myFolderData", (event, data) => {
 
 // the function return the number of groups based on the folders in the main folder
 function getNumOfGroups(){
-    var folders =  fse.readdirSync(mainFolderPath).filter(function(file) {
-            return fse.statSync(path.join(mainFolderPath, file)).isDirectory();
+    var folders =  fse.readdirSync(getMainFolderPath()).filter(function(file) {
+            return fse.statSync(path.join(getMainFolderPath(), file)).isDirectory();
         });
 
     return folders.length;
@@ -140,7 +145,7 @@ function unWatchMain(){
 }
 
 function setWatcher(){
-    var path = mainFolderPath;
+    var path = getMainFolderPath();
 
      watcher = chokidar.watch(path, {
          ignored: /[\/\\]\./,
@@ -305,7 +310,7 @@ function newWindow(title){
     console.log(title);
     if (title == null){
         title = "Window " + (global.sharedObj.windows.length + 1).toString() ;
-        fse.mkdirSync(mainFolderPath + title);
+        fse.mkdirSync(getMainFolderPath() + title);
         justCreated = true;
     }
 
@@ -316,13 +321,44 @@ function newWindow(title){
 }
 
 
+function batchedWindowCreating(data){
+
+    console.log(data);
+
+    fse.mkdirSync(getMainFolderPath());
+
+    for (var i=0; i < data.length; i++){
+        var windowName = data[i].windowTitle;
+        if (windowName == ""){
+            windowName ="Window " + (i+1);
+        }
+        var newFolderPath = getMainFolderPath() + windowName;
+        fse.mkdirSync(newFolderPath);
+        var folders = data[i].folders;
+        for(var j=0; j < folders.length; j++){
+            var oldPath = DESKTOP_PATH + "/" + folders[j];
+            var newPath = newFolderPath + "/" + folders[j];
+            fse.move(oldPath, newPath, function(err){
+                if (err){
+                    console.log(error);
+                    return;
+                }
+
+            });
+        }
+    }
+
+    initialize();
+}
+
+
 function initialize(){
     try{
-        stats = fse.lstatSync(mainFolderPath);
+        stats = fse.lstatSync(getMainFolderPath());
 
         if (stats.isDirectory()) {
-            var folders =  fse.readdirSync(mainFolderPath).filter(function(file) {
-                    return fse.statSync(path.join(mainFolderPath, file)).isDirectory();
+            var folders =  fse.readdirSync(getMainFolderPath()).filter(function(file) {
+                    return fse.statSync(path.join(getMainFolderPath(), file)).isDirectory();
                 });
 
 
@@ -336,7 +372,7 @@ function initialize(){
         }
     }
     catch (e){
-        fse.mkdirSync(mainFolderPath); // create the main folder
+        fse.mkdirSync(getMainFolderPath()); // create the main folder
         newWindow(null);
     }
 
@@ -488,6 +524,9 @@ app.on('ready', function (){
 
     startApp();
 })
+
+
+
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
