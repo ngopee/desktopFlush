@@ -323,8 +323,6 @@ function newWindow(title){
 
 function batchedWindowCreating(data){
 
-    console.log(data);
-
     fse.mkdirSync(getMainFolderPath());
 
     for (var i=0; i < data.length; i++){
@@ -384,8 +382,8 @@ function startApp(){
 
     storage.has("firstTime", function(err, runBefore){
         if (!runBefore){
-//            createPreference();
-//        } else{
+           createPreference();
+       } else{
             startingApp = true;
             storage.has("data", function (error, hasKey){
                 if (error){
@@ -508,6 +506,10 @@ app.on('ready', function (){
                             click: () => windowedApp()
                         }
                     ]
+                },
+                {
+                    label: "New Group",
+                    click: () => newWindow(null)
                 },
                 {
                     label: "Quit",

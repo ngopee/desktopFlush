@@ -241,12 +241,16 @@ function setIcon(newFolder, filePath){
                 newFolder.src = "./icons/pdf.png";
                 break;
             case ".pages":
+            case ".doc":
+            case ".docx":
                 newFolder.src = "./icons/PagesDocument.png";
                 break;
+            case ".xlsx":
             case ".numbers":
                 newFolder.src = "./icons/NumbersDocument.png";
                 break;
             case ".key":
+            case ".ppt":
                 newFolder.src = "./icons/KeyDocument.png";
                 break;
             case ".txt":

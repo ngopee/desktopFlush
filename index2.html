@@ -9,7 +9,7 @@
             We will help you remove all the crap from your desktop!
         </p>
         <br />
-        Desktop Folder Name: <input id="desktopFolderName" type="text" placeholder="DesktopFlush" />
+        Desktop Folder Name: <input id="desktopFolderName" type="text" placeholder="DesktopFlush" onblur="updateFolderName()"/>
 
         <br>
         Number of Groups:
@@ -25,6 +25,8 @@
 
         <br />
 
+        <button id="autoGroup" onclick="autoGroup()"> Auto Group</button>
+
         <div id="windowNames">
 
         </div>
@@ -39,11 +41,12 @@
 
     <script>
         const fse = require("fs-extra");
-        const remote = require("electron").remote
+        const remote = require("electron").remote;
+        const path = require("path");
 
         var batchedWindowCreating = require('electron').remote.require('./main').batchedWindowCreating;
 
-        var folders; // a list of the folders on the desktop
+        var folders; // a list of the folders/files on the desktop
 
          //list of the windows, (each index is an object with the info about that window: title, and folders in it).
          // To be sent to the main to create the windows
@@ -101,12 +104,17 @@
             };
         }
 
-        function start(){
-            var folderName = document.getElementById("desktopFolderName").value;
 
+        function updateFolderName(){
+
+            var folderName = document.getElementById("desktopFolderName").value;
+            console.log(folderName);
             if (folderName != ""){
                 remote.getGlobal("sharedObj").appFolder = folderName;
             }
+        }
+
+        function start(){
 
             console.log(data);
             for (var i = 0; i < folders.length; i++){
@@ -131,6 +139,82 @@
             // for (var i = 0; i < radioButtons.length; i++){
             //     console.log(radioButtons[i].value);
             // }
+        }
+
+        function addToGroup(groupName, fileName, dict){
+            if (groupName in dict){
+                var index = dict[groupName];
+                data[index].folders.push(fileName);
+            } else{
+                dict[groupName] = data.length;
+                data.push({"windowTitle": groupName, "folders": [fileName]});
+            }
+        }
+
+        function autoGroup(){
+
+            // a dict group -> index (of the group) in the data list
+            var groupsIndices = {};
+
+            // go over the different folders on the desktop§
+            for (var i = 0; i < folders.length; i++){
+
+                var file = folders[i];
+                if (file == "$RECYCLE.BIN" || file == "All Your Desktop Groups Files" || file == "Screenshot"){
+                    console.log("true");
+                    continue;
+                }
+
+                // get the extension for the file - if folder no extension and if app it will be .app
+               var extension = path.extname(file);
+
+               var filePath = remote.getGlobal('sharedObj').desktopPath + "/" + file;
+               console.log(filePath);
+
+               // check if the new element is a directory
+               if (fse.statSync(filePath).isDirectory()) {
+                   if (extension == ".app"){ // if it is an app
+                       addToGroup("app", file, groupsIndices);
+                   } else{ // if it is a normal folder, show the regular folder icon
+                        addToGroup("dir", file, groupsIndices);
+                   }
+               }
+               else{  // it is a file, group them based on extension
+                   switch(extension){
+                       case ".pdf":
+                           addToGroup("PDF", file, groupsIndices);
+                           break;
+                       case ".pages":
+                       case ".doc":
+                       case ".docx":
+                           addToGroup("Documents", file, groupsIndices);
+                           break;
+                       case ".xlsx":
+                       case ".numbers":
+                           addToGroup("Stylesheet", file, groupsIndices);
+                           break;
+                       case ".key":
+                       case ".ppt":
+                           addToGroup("Presentation", file, groupsIndices);
+                           break;
+                       case ".txt":
+                           addToGroup("txt", file, groupsIndices);
+                           break;
+                       case "tiff":
+                       case ".png":
+                       case ".jpg":
+                       case ".jpeg":
+                           addToGroup("Images", file, groupsIndices);
+                           break;
+                       default:
+                            addToGroup("Others", file, groupsIndices);
+                            break;
+                   }
+
+               }
+            }
+
+            batchedWindowCreating(data);
 
         }
 
