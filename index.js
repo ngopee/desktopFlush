@@ -268,9 +268,34 @@ function setIcon(newFolder, filePath){
 
     }
 
-
-
 }
+
+function removeClickedFolder(){
+    clickedFolderButton.style.backgroundColor = "transparent";
+    clickedFolderButton.style.border = "0px";
+    clickedFolderText.style.backgroundColor = "transparent";
+}
+
+function clickFolder(folderImgContainer, nameHolder){
+    clickedFolderButton = folderImgContainer;
+    clickedFolderText = nameHolder;
+
+    folderImgContainer.style.borderRadius = "3px";
+    folderImgContainer.style.border = "2px solid rgb(124, 123, 125)";
+    folderImgContainer.style.backgroundColor = "rgb(50,50,50)";
+
+    nameHolder.style.borderRadius = '5px';
+    nameHolder.style.backgroundColor = "blue";
+}
+
+
+function activateClick(elemt){
+
+    var folderImgContainer = elemt.querySelector(".FolderIconContainer");
+    var nameHolder = elemt.querySelector(".fileNameElement").getElementsByTagName("span")[0];
+    clickFolder(folderImgContainer, nameHolder);
+}
+
 
 // creating the folder and add it to the app
 function addFolderButton(fileName, newFilePath){
@@ -317,21 +342,11 @@ function addFolderButton(fileName, newFilePath){
     newFolder.onclick = function(e){ // the select action when clicking on the folder
         e.stopPropagation();
         if (clickedFolderButton != null){
-            clickedFolderButton.style.backgroundColor = "transparent";
-            clickedFolderButton.style.border = "0px";
-            clickedFolderText.style.backgroundColor = "transparent";
-
+            removeClickedFolder();
         }
 
-        clickedFolderButton = folderImgContainer;
-        clickedFolderText = nameHolder;
 
-        folderImgContainer.style.borderRadius = "3px";
-        folderImgContainer.style.border = "2px solid rgb(124, 123, 125)";
-        folderImgContainer.style.backgroundColor = "rgb(50,50,50)";
-
-        nameHolder.style.borderRadius = '5px';
-        nameHolder.style.backgroundColor = "blue";
+        clickFolder(folderImgContainer, nameHolder);
 
     }
 
@@ -342,6 +357,82 @@ function addFolderButton(fileName, newFilePath){
 
     document.querySelector("#box").appendChild(newFolder);
 }
+
+function getEltIndex(node, classElts){
+    for (var i = 0; i < classElts.length; i++){
+        if(node == classElts[i])
+            return i;
+    }
+    return -1;
+}
+
+document.onkeydown = function(e) {
+    var allFolders = document.querySelectorAll(".folder");
+
+    switch (e.keyCode) {
+        case 37:
+            if (clickedFolderButton.parentNode === allFolders[0]){
+                console.log("nothing to do");
+                return;
+            }
+            // alert('left');
+            removeClickedFolder();
+            activateClick(clickedFolderButton.parentNode.previousSibling);
+            break;
+        case 38:
+            var width = (remote.getCurrentWindow().getContentSize())[0];
+
+            var diff = Math.floor(width / 109);  //105 is the folder width
+
+            var elt = clickedFolderButton.parentNode;
+            var classElts = document.querySelectorAll(".folder");
+
+            var index = getEltIndex(elt, classElts);
+            console.log(index, diff, classElts.length);
+
+            if (index - diff < 0){
+                return;
+            } else{
+                classElts[index-diff].scrollIntoView(false);
+                removeClickedFolder();
+                activateClick(classElts[index-diff]);
+                break;
+            }
+        case 39:
+            if (clickedFolderButton.parentNode === allFolders[allFolders.length-1]){
+                console.log("nothing to do");
+                return;
+            }
+            // alert('right');
+            removeClickedFolder();
+            activateClick(clickedFolderButton.parentNode.nextSibling);
+            break;
+        case 40:
+            var width = (remote.getCurrentWindow().getContentSize())[0];
+
+            var diff = Math.floor(width / 109);  //105 is the folder width
+
+            var elt = clickedFolderButton.parentNode;
+            var classElts = document.querySelectorAll(".folder");
+
+            var index = getEltIndex(elt, classElts);
+            console.log(index, diff, classElts.length);
+
+            if (index + diff >= classElts.length){
+                return;
+            } else{
+
+                classElts[index+diff].scrollIntoView(false);
+
+                removeClickedFolder();
+                activateClick(classElts[index+diff]);
+                break;
+            }
+
+            // alert('down');
+
+    }
+};
 
 // function that runs on the drop event to add the folder button
 function addFolder(event){
