@@ -150,6 +150,15 @@ function setWatcher(){
 
 //////// end of settings menu //////////////
 
+
+function init(){
+    var size = win.getSize();
+    Win_width = size[0];
+    Win_height = size[1];
+
+    initFolders();
+}
+
 // run in the beginning, to set the folders/files that are already in the group folder
 function initFolders(){
     var getWindowIndex = require('electron').remote.require('./main').getWindowIndex;
@@ -580,10 +589,6 @@ function saveNewTitle(){
 // reduce the size of the window
 function reduce(){
     $('#box').slideToggle(250, function(){
-        var size = win.getSize();
-        Win_width = size[0];
-        Win_height = size[1];
-
         reduced = true;
 
         win.setSize(Win_width, 30);

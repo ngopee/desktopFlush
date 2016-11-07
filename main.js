@@ -9,7 +9,7 @@ const APP_PATH = `file://${__dirname}/`;
 
 const DESKTOP_PATH = app.getPath('desktop');
 
-const MAIN_DIR = 'test';
+const MAIN_DIR = 'DesktopFlush';
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
