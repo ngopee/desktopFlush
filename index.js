@@ -13,7 +13,6 @@ const path = require("path");
 const rmdir = require("rmdir");
 let $ = require("jquery");
 
-
 const MAIN_DIR = remote.getGlobal('sharedObj').appFolder;
 
 var desktopPath = app.getPath('desktop');
@@ -31,6 +30,11 @@ var clickedFolderText = null;
 
 var itemsWaitingDeletion = 0;
 
+const win = remote.getCurrentWindow();
+var Win_height;
+var Win_width;
+var reduced = false;
+var expanding = false;
 var watcher;
 
 window.addEventListener("dragover",function(e){
@@ -149,7 +153,7 @@ function setWatcher(){
 // run in the beginning, to set the folders/files that are already in the group folder
 function initFolders(){
     var getWindowIndex = require('electron').remote.require('./main').getWindowIndex;
-    var index = getWindowIndex(remote.getCurrentWindow());
+    var index = getWindowIndex(win);
 
     groupName = remote.getGlobal('sharedObj').titles[index];
 
@@ -328,7 +332,7 @@ function addFolderButton(fileName, newFilePath){
       rightClickPosition = {x: e.x, y: e.y}
     //   rightClickFolderID = e['target'].parentNode.id;  // the name of the folder
         rightClickFolderID = newFolder.id;
-      menu.popup(remote.getCurrentWindow()) // show the menu
+      menu.popup(win) // show the menu
     }, false)
 
     var c = this;
@@ -370,6 +374,14 @@ document.onkeydown = function(e) {
     var allFolders = document.querySelectorAll(".folder");
 
     switch (e.keyCode) {
+        case 13:
+            var event = new MouseEvent('dblclick', {
+                'view': window,
+                'bubbles': true,
+                'cancelable': true
+              });
+            clickedFolderButton.dispatchEvent(event);
+            break;
         case 37:
             if (clickedFolderButton.parentNode === allFolders[0]){
                 console.log("nothing to do");
@@ -380,7 +392,7 @@ document.onkeydown = function(e) {
             activateClick(clickedFolderButton.parentNode.previousSibling);
             break;
         case 38:
-            var width = (remote.getCurrentWindow().getContentSize())[0];
+            var width = (win.getContentSize())[0];
 
             var diff = Math.floor(width / 109);  //105 is the folder width
 
@@ -393,7 +405,9 @@ document.onkeydown = function(e) {
             if (index - diff < 0){
                 return;
             } else{
-                classElts[index-diff].scrollIntoView(false);
+                var topPos = classElts[index-diff].offsetTop;
+                document.getElementById('box').scrollTop = topPos;
+
                 removeClickedFolder();
                 activateClick(classElts[index-diff]);
                 break;
@@ -408,7 +422,7 @@ document.onkeydown = function(e) {
             activateClick(clickedFolderButton.parentNode.nextSibling);
             break;
         case 40:
-            var width = (remote.getCurrentWindow().getContentSize())[0];
+            var width = (win.getContentSize())[0];
 
             var diff = Math.floor(width / 109);  //105 is the folder width
 
@@ -422,7 +436,9 @@ document.onkeydown = function(e) {
                 return;
             } else{
 
-                classElts[index+diff].scrollIntoView(false);
+                // classElts[index+diff].scrollIntoView(false);
+                var topPos = classElts[index+diff].offsetTop;
+                document.getElementById('box').scrollTop = topPos - 70;
 
                 removeClickedFolder();
                 activateClick(classElts[index+diff]);
@@ -536,7 +552,7 @@ function ignoreEvent(event){
 }
 
 function showSettingsMenu(){
-    settingsMenu.popup(remote.getCurrentWindow()) // show the menu
+    settingsMenu.popup(win) // show the menu
 }
 
 function enableTitleChange(){
@@ -563,7 +579,17 @@ function saveNewTitle(){
 
 // reduce the size of the window
 function reduce(){
-    $('#box').slideUp(250); //slide it up (animation)
+    $('#box').slideToggle(250, function(){
+        var size = win.getSize();
+        Win_width = size[0];
+        Win_height = size[1];
+
+        reduced = true;
+
+        win.setSize(Win_width, 30);
+
+    }); //slide it up (animation)
+
 
     var button = document.querySelector("#expandReduce");
     button.className = "fa fa-angle-down"; // change the icon shape
@@ -573,13 +599,32 @@ function reduce(){
 
 // to show the window again after being reduced
 function expand(){
-    $('#box').slideDown(250); // animation to slide it down
+    expanding = true;
+    win.setSize(Win_width, Win_height);
+    reduced = false;
+
 
     var button = document.querySelector("#expandReduce");
     button.className = "fa fa-angle-up";  // change the icon
     button.onclick = reduce; // change the onclick event to reduce
 }
 
+
+remote.getCurrentWindow().on("resize", function(){
+    if (expanding == true){
+        $('#box').slideToggle(250);
+        expanding = false;
+    }
+
+    if (reduced == true){
+        return;
+    }
+
+    var win = remote.getCurrentWindow()
+    var size = win.getSize();
+    Win_width = size[0];
+    Win_height = size[1];
+})
 //
 // // before quitting the window, save the data structure
 // window.onbeforeunload = function onbeforeunload() {
