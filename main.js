@@ -514,6 +514,7 @@ app.on('ready', function (){
                 {
                     label: "Quit",
                     accelerator: 'Command+Q',
+                    position: "endof=preferences",
                     role: 'quit'
                 }
 

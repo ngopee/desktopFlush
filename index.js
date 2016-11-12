@@ -604,10 +604,12 @@ function reduce(){
 
 // to show the window again after being reduced
 function expand(){
+    if (expanding == true){
+        return;
+    }
     expanding = true;
     win.setSize(Win_width, Win_height);
     reduced = false;
-
 
     var button = document.querySelector("#expandReduce");
     button.className = "fa fa-angle-up";  // change the icon
@@ -617,17 +619,20 @@ function expand(){
 
 remote.getCurrentWindow().on("resize", function(){
     if (expanding == true){
-        $('#box').slideToggle(250);
-        expanding = false;
-    }
+        $('#box').slideToggle(250, function(){
+            expanding = false;
+        });
 
-    if (reduced == true){
-        return;
     }
 
     var win = remote.getCurrentWindow()
     var size = win.getSize();
     Win_width = size[0];
+
+    if (reduced == true){
+        return;
+    }
+
     Win_height = size[1];
 })
 //

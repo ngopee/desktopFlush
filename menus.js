@@ -37,19 +37,20 @@ const colors = new MenuItem({
     label: "Window Color",
     submenu: [
         {
-            label: "Red",
+            label: "\u{1F534}" + "Red",
             click: () => {
                 document.getElementById("box").style.backgroundColor = "rgba(232, 22, 22, 0.75)";
             }
         },
         {
             label: "Gray",
+            icon: "icons/gray.png",
             click: () => {
                 document.getElementById("box").style.backgroundColor = "rgba(100,100,100,0.75)";
             }
         },
         {
-            label: "Blue",
+            label: "\u{1F535}" + "Blue",
             click: () => {
                 document.getElementById("box").style.backgroundColor = "rgba(22,22,232,0.75)";
             }
