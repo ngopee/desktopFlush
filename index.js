@@ -50,6 +50,11 @@ window.addEventListener("drop",function(e){
 ipcRenderer.on('changeTitle' , function(event , data){
                 groupName = data.newTitle;
                 document.querySelector("#titleText").value = groupName;
+                if (watcher){
+                    watcher.close();
+                    setWatcher();
+                }
+
             });
 
 
@@ -72,14 +77,14 @@ function getFolders(){
 
 // set watcher over the folder of that group
 function setWatcher(){
-
+    console.log("setting Watcher");
     var path = desktopPath + "/" + MAIN_DIR + "/" + groupName;
 
      watcher = chokidar.watch(path, {
          ignored: /[\/\\]\./,
          ignoreInitial: true,
          persistent: true,
-         depth: 0
+         depth: 1
      });
 
     //  // Declare the listeners of the watcher
