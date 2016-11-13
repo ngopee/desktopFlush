@@ -271,6 +271,8 @@ function createWindow () {
         name: "My app window",
         width: 450,
         height: 230,
+        minWidth: 230,
+        minHeight: 30,
         transparent: true,
         toolbar: false,
         frame: false,
