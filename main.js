@@ -384,9 +384,13 @@ function startApp(){
 
     storage.has("firstTime", function(err, runBefore){
         if (!runBefore){
-    //        createPreference();
-    //    } else{
-    //         startingApp = true;
+            storage.set("firstTime", "True", function(err){
+                console.log(err)
+            });
+           createPreference();
+       } else{
+
+            startingApp = true;
             storage.has("data", function (error, hasKey){
                 if (error){
                     console.log("ERROR CHECKING DATA");

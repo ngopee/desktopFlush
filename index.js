@@ -350,14 +350,21 @@ function addFolderButton(fileName, newFilePath){
     }, false)
 
     var c = this;
-    newFolder.ondblclick = function(){
+    newFolderButton.ondblclick = function(){
         var newFilePath = desktopPath + "/" + MAIN_DIR + "/" + groupName + "/" + fileName;    // the new path (inside a folder on the desktop)
 
         console.log(newFilePath);
         shell.openItem(newFilePath)  // opens it in the new file name path
     }
 
-    newFolder.onclick = function(e){ // the select action when clicking on the folder
+    fileNameElement.ondblclick = function(){
+        var newFilePath = desktopPath + "/" + MAIN_DIR + "/" + groupName + "/" + fileName;    // the new path (inside a folder on the desktop)
+
+        console.log(newFilePath);
+        shell.openItem(newFilePath)  // opens it in the new file name path
+    }
+
+    newFolderButton.onclick = function(e){ // the select action when clicking on the folder
         e.stopPropagation();
         if (clickedFolderButton != null){
             removeClickedFolder();
@@ -365,7 +372,15 @@ function addFolderButton(fileName, newFilePath){
 
 
         clickFolder(folderImgContainer, nameHolder);
+    }
 
+    fileNameElement.onclick = function(e){
+        e.stopPropagation();
+        if (clickedFolderButton != null){
+            removeClickedFolder();
+        }
+
+        clickFolder(folderImgContainer, nameHolder);
     }
 
 
@@ -387,16 +402,21 @@ function getEltIndex(node, classElts){
 document.onkeydown = function(e) {
     var allFolders = document.querySelectorAll(".folder");
 
+    if (!clickedFolderButton){
+        return;
+    }
+
     switch (e.keyCode) {
-        case 13:
+        case 13:  // enter key
             var event = new MouseEvent('dblclick', {
                 'view': window,
                 'bubbles': true,
                 'cancelable': true
               });
             clickedFolderButton.dispatchEvent(event);
+
             break;
-        case 37:
+        case 37: // left
             if (clickedFolderButton.parentNode === allFolders[0]){
                 console.log("nothing to do");
                 return;
@@ -405,7 +425,7 @@ document.onkeydown = function(e) {
             removeClickedFolder();
             activateClick(clickedFolderButton.parentNode.previousSibling);
             break;
-        case 38:
+        case 38: // up
             var width = (win.getContentSize())[0];
 
             var diff = Math.floor(width / 109);  //105 is the folder width
@@ -426,7 +446,7 @@ document.onkeydown = function(e) {
                 activateClick(classElts[index-diff]);
                 break;
             }
-        case 39:
+        case 39: // right
             if (clickedFolderButton.parentNode === allFolders[allFolders.length-1]){
                 console.log("nothing to do");
                 return;
@@ -435,7 +455,7 @@ document.onkeydown = function(e) {
             removeClickedFolder();
             activateClick(clickedFolderButton.parentNode.nextSibling);
             break;
-        case 40:
+        case 40: // down
             var width = (win.getContentSize())[0];
 
             var diff = Math.floor(width / 109);  //105 is the folder width
@@ -593,18 +613,19 @@ function saveNewTitle(){
 
 // reduce the size of the window
 function reduce(){
-    $('#box').slideToggle(250, function(){
+    $('#box').slideUp(150, function(){
         reduced = true;
 
         win.setSize(Win_width, 30);
+        var button = document.querySelector("#expandReduce");
+        button.className = "fa fa-angle-down"; // change the icon shape
+
+        button.onclick = expand;  //change the onclick event to expand
 
     }); //slide it up (animation)
 
 
-    var button = document.querySelector("#expandReduce");
-    button.className = "fa fa-angle-down"; // change the icon shape
 
-    button.onclick = expand;  //change the onclick event to expand
 }
 
 // to show the window again after being reduced
@@ -616,16 +637,16 @@ function expand(){
     win.setSize(Win_width, Win_height);
     reduced = false;
 
-    var button = document.querySelector("#expandReduce");
-    button.className = "fa fa-angle-up";  // change the icon
-    button.onclick = reduce; // change the onclick event to reduce
 }
 
 
 remote.getCurrentWindow().on("resize", function(){
     if (expanding == true){
-        $('#box').slideToggle(250, function(){
+        $('#box').slideDown(150, function(){
             expanding = false;
+            var button = document.querySelector("#expandReduce");
+            button.className = "fa fa-angle-up";  // change the icon
+            button.onclick = reduce; // change the onclick event to reduce
         });
 
     }

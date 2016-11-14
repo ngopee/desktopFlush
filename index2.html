@@ -3,46 +3,63 @@
         <link rel="stylesheet" type="text/css" href="pref_style.css">
     </head>
     <body onload="init()">
-        <h2 id="title"> Welcome to DesktopFlush </h2>
-        <br>
-        <p id="desc">
-            We will help you remove all the crap from your desktop!
-        </p>
-        <br />
-        Desktop Folder Name: <input id="desktopFolderName" type="text" placeholder="DesktopFlush" onblur="updateFolderName()"/>
+        <div id="welcomePage">
+            <h2 id="title"> Welcome to DesktopFlush </h2>
+            <br>
+            <div id="desc">
+                We will help you remove all the crap from your desktop!
+                <p>
+                    Simply, Drag and drop folders, files and even apps to the windows and quickly access them
+                    while keeping your Desktop clean!
+                    <br />
+                    You can also set different colors to the windows based on your preferences
+                </p>
 
-        <br>
-        Number of Groups:
-
-        <select name="numGroups" id="numGroupSelector">
-            <option value="" disabled selected>Number of Groups</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-        </select>
-
-        <br />
-
-        <button id="autoGroup" onclick="autoGroup()"> Auto Group</button>
-
-        <div id="windowNames">
-
+                <p>
+                    For Auto Grouping with the default settings, click on the Auto Group Button. If you want
+                    to adjust it to your needs, click on the arrow to move to the settings window.
+                </p>
+                <button id="autoGroup" onclick="autoGroup()"> Auto Group</button>
+                <button id="toSettingsButton" onclick="toSettings()">R</button>
+            </div>
+            <br />
         </div>
 
-        <div id="foldersCheckbox">
+        <div id="settingsPage">
+            Desktop Folder Name: <input id="desktopFolderName" type="text" placeholder="DesktopFlush" onblur="updateFolderName()"/>
 
+            <br>
+            Number of Groups:
+
+            <select name="numGroups" id="numGroupSelector">
+                <option value="" disabled selected>Number of Groups</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+
+            <br />
+            <div id="windowNames">
+
+            </div>
+
+            <div id="foldersCheckbox">
+
+            </div>
+
+            <br />
+            <button id="okButton" onclick="start()"> OK </button>
         </div>
 
-        <br />
-        <button id="okButton" onclick="start()"> OK </button>
     </body>
 
     <script>
         const fse = require("fs-extra");
         const remote = require("electron").remote;
         const path = require("path");
+        const $ = require("jquery");
 
         var batchedWindowCreating = require('electron').remote.require('./main').batchedWindowCreating;
 
@@ -218,6 +235,46 @@
 
         }
 
+        $.fn.blindLeftToggle = function (duration, easing, complete) {
+            return this.animate({
+                marginLeft: parseFloat(this.css('marginLeft')) < 0 ? 0 : -this.outerWidth()
+            }, $.speed(duration, easing, complete));
+        };
+
+
+        $.fn.blindLeftOut = function (duration, easing, complete) {
+            return this.animate({
+                marginLeft: -this.outerWidth()
+            }, $.speed(duration, easing, complete));
+        };
+
+        $.fn.blindRightIn = function (duration, easing, complete) {
+            return this.animate({
+                marginLeft: 0
+            }, $.speed(duration, easing, complete));
+        };
+
+        $.fn.blindRightOut = function (duration, easing, complete) {
+            return this.animate({
+                marginLeft: this.outerWidth()
+            }, $.speed(duration, easing, complete));
+        };
+
+
+        $("#settingsPage").blindRightOut("fast");
+
+        function toSettings(){
+            // $("#settingsPage").show(200, "slide");
+            // $("#welcomePage").animate({"margin-right":"+=600"});
+            // $("#settingsPage").animate({"margin-right":'200'});
+            $("#welcomePage").blindLeftOut(600);
+            $("#settingsPage").css("visibility", "visible");
+
+            $("#settingsPage").blindRightIn(600, function(){
+                $("#welcomePage").css("visibility", "hidden");
+            });
+
+        }
 
     </script>
 
