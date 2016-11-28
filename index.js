@@ -269,6 +269,7 @@ function setIcon(newFolder, filePath){
                 break;
             case ".key":
             case ".ppt":
+            case ".pptx":
                 newFolder.src = "./icons/KeyDocument.png";
                 break;
             case ".txt":
@@ -280,7 +281,7 @@ function setIcon(newFolder, filePath){
                 newFolder.src = filePath;
                 break;
             default:
-                newFolder.src = "./icons/Settings.png";
+                newFolder.src = "./icons/generic-file-icon.png";
                 break;
         }
 
@@ -458,7 +459,7 @@ document.onkeydown = function(e) {
         case 40: // down
             var width = (win.getContentSize())[0];
 
-            var diff = Math.floor(width / 109);  //105 is the folder width
+            var diff = Math.floor(width / 109);  //109 is the folder width
 
             var elt = clickedFolderButton.parentNode;
             var classElts = document.querySelectorAll(".folder");

@@ -36,6 +36,12 @@
     margin-bottom: 10%;
 }
 
+#toWelcomeButton{
+    float: left;
+    margin-bottom: 100%;
+    margin-right: 30px;
+}
+
 #toSettingsButton{
     float: right;
     margin-right: -70px;

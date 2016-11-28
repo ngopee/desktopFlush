@@ -26,6 +26,8 @@
         </div>
 
         <div id="settingsPage">
+            <button id="toWelcomeButton" onclick="toWelcome()">L</button>
+
             Desktop Folder Name: <input id="desktopFolderName" type="text" placeholder="DesktopFlush" onblur="updateFolderName()"/>
 
             <br>
@@ -177,7 +179,7 @@
             for (var i = 0; i < folders.length; i++){
 
                 var file = folders[i];
-                if (file == "$RECYCLE.BIN" || file == "All Your Desktop Groups Files" || file == "Screenshot"){
+                if (file == "$RECYCLE.BIN" || file == "All Your Desktop Groups Files"){
                     console.log("true");
                     continue;
                 }
@@ -191,9 +193,9 @@
                // check if the new element is a directory
                if (fse.statSync(filePath).isDirectory()) {
                    if (extension == ".app"){ // if it is an app
-                       addToGroup("app", file, groupsIndices);
+                       addToGroup("App", file, groupsIndices);
                    } else{ // if it is a normal folder, show the regular folder icon
-                        addToGroup("dir", file, groupsIndices);
+                        addToGroup("Directories", file, groupsIndices);
                    }
                }
                else{  // it is a file, group them based on extension
@@ -212,10 +214,11 @@
                            break;
                        case ".key":
                        case ".ppt":
+                       case ".pptx":
                            addToGroup("Presentation", file, groupsIndices);
                            break;
                        case ".txt":
-                           addToGroup("txt", file, groupsIndices);
+                           addToGroup("Txt", file, groupsIndices);
                            break;
                        case "tiff":
                        case ".png":
@@ -267,10 +270,10 @@
             // $("#settingsPage").show(200, "slide");
             // $("#welcomePage").animate({"margin-right":"+=600"});
             // $("#settingsPage").animate({"margin-right":'200'});
-            $("#welcomePage").blindLeftOut(600);
+            $("#welcomePage").blindLeftOut(500);
             $("#settingsPage").css("visibility", "visible");
 
-            $("#settingsPage").blindRightIn(600, function(){
+            $("#settingsPage").blindRightIn(500, function(){
                 $("#welcomePage").css("visibility", "hidden");
             });
 
