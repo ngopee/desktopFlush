@@ -383,7 +383,7 @@ function initialize(){
 function startApp(){
 
     storage.has("firstTime", function(err, runBefore){
-        if (runBefore){
+        if (!runBefore){
             storage.set("firstTime", "True", function(err){
                 console.log(err)
             });

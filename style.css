@@ -73,7 +73,7 @@ img {
 
 
 .fileNameElement{
-    word-wrap: break-word;
+    word-break: break-all;
     cursor: default;
     margin-top: 2px;
     margin-bottom: 30px;
