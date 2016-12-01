@@ -8,7 +8,7 @@ const {Menu, MenuItem} = remote
 const menu = new Menu()
 
 const menuItem = new MenuItem({
-  label: 'remove folder',
+  label: 'remove',
   click: () => {
       removeFolder(null);  // remove folder on clicking on remove folder
 
@@ -22,7 +22,7 @@ menu.append(menuItem)
 /////////// settings menu ///////////////////
 
 
-const settingsMenu = new Menu(); // the settings Menu
+var settingsMenu = new Menu(); // the settings Menu
 
 const AddGroupItem = new MenuItem({
     label: 'Add Group',
@@ -66,6 +66,33 @@ const remove_group = new MenuItem({
     }
 })
 
-settingsMenu.append(AddGroupItem);
-settingsMenu.append(remove_group);
-settingsMenu.append(colors);
+function createSettingsMenu(currentWindowTitle){
+    if (currentWindowTitle == null){
+        return;
+    }
+
+    settingsMenu = new Menu();
+    var titles = remote.getGlobal("sharedObj").titles;
+    folderSubMenu = [];
+    for (var i = 0; i < titles.length ; i++){
+        if (currentWindowTitle == titles[i]){
+            continue;
+        }
+        var m = new MenuItem({
+            label: titles[i],
+            click: (m, b, e) => mergeToFolder(currentWindowTitle, m.label)
+        });
+
+        folderSubMenu.push(m)
+    }
+    var mergeMenu = new MenuItem({
+        label: 'Merge to',
+        submenu: folderSubMenu
+    });
+    settingsMenu.append(AddGroupItem);
+    settingsMenu.append(remove_group);
+    settingsMenu.append(colors);
+    settingsMenu.append(mergeMenu);
+}
+
+createSettingsMenu();

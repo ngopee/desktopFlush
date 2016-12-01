@@ -76,9 +76,11 @@ function createMenuList(groupName, data){
     return menu;
 }
 
+
 ipcMain.on("myFolderData", (event, data) => {
 
     console.log("receiving...");
+    winsNames.push(data[0]);
 
     var menu = new MenuItem(
         {
@@ -86,25 +88,48 @@ ipcMain.on("myFolderData", (event, data) => {
             submenu: createMenuList(data[0], data[1])
         });
 
-
-    vp = vp - 1;
     dockMenu.push(menu);
 
-    // data[2] hold the index of the window
-    global.sharedObj.windows[data[2]].close();
+    vp = vp - 1;
 
     if (vp == 0){
-        var mainDockMenu = Menu.buildFromTemplate([
-            {
-                label: 'DF',
-                submenu: dockMenu
+        storage.get("data", function(error, storageData){
+            if (storageData["mode"] == "dock"){
+                var wins = global.sharedObj.windows;
+
+                for (var j = wins.length - 1 ; j >= 0; j--){
+                    global.sharedObj.windows[j].close();
+                }
+
+                var mainDockMenu = Menu.buildFromTemplate([
+                    {
+                        label: 'DF',
+                        submenu: dockMenu
+                    }
+                ])
+
+                app.dock.setMenu(mainDockMenu);
+
             }
-        ])
+        });
 
-        app.dock.setMenu(mainDockMenu);
     }
-
 });
+
+function getTitles(){
+    for (var i = windows.length - 1; i >= 0; i--){
+        if (windows[i].isVisible()){
+            windows[i].webContents.send('getData', {Win_index: i});
+        }
+        else {
+            windows[i].on('ready-to-show', (d) => { // if it wasn't ready yet, send the signal when it is ready
+                d.sender.send('getData', {Win_index:getWindowIndex(d.sender)});
+            });
+        }
+
+
+    }
+}
 
 
 // the function return the number of groups based on the folders in the main folder
@@ -458,7 +483,7 @@ function dockOnly(){
     var windows = global.sharedObj.windows;
     vp = windows.length;
 
-    for (var i = 0; i < windows.length; i++){
+    for (var i = windows.length - 1; i >= 0; i--){
         if (windows[i].isVisible()){
             windows[i].webContents.send('getData', {Win_index: i});
         }

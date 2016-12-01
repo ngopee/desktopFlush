@@ -37,6 +37,8 @@ var reduced = false;
 var expanding = false;
 var watcher;
 
+var Win_index;
+
 window.addEventListener("dragover",function(e){
   e = e || event;
   e.preventDefault();
@@ -59,13 +61,13 @@ ipcRenderer.on('changeTitle' , function(event , data){
 
 
 ipcRenderer.on('getData', function(event, data){
-    ipcRenderer.send("myFolderData", [groupName, getFolders(), data.Win_index]);
+    ipcRenderer.send("myFolderData", [groupName, getFolders()]);
 });
 
 /////////////////////////////////////////////
 
 function getFolders(){
-    var classes = document.querySelectorAll(".fileNameElement");
+    var classes = document.querySelectorAll(".fileNameElement span");
 
     var folders = [];
     for (var i = 0; i < classes.length; i++){
@@ -167,9 +169,9 @@ function init(){
 // run in the beginning, to set the folders/files that are already in the group folder
 function initFolders(){
     var getWindowIndex = require('electron').remote.require('./main').getWindowIndex;
-    var index = getWindowIndex(win);
+    Win_index = getWindowIndex(win);
 
-    groupName = remote.getGlobal('sharedObj').titles[index];
+    groupName = remote.getGlobal('sharedObj').titles[Win_index];
 
     document.getElementById("titleText").value = groupName;  // set the title of the group
 
@@ -327,7 +329,7 @@ function addFolderButton(fileName, newFilePath){
     fileNameElement.className = "fileNameElement";
     // not setting the name of the file as innerHTML to be able to adjust the size of colored area on click
     var nameHolder = document.createElement("span"); // to have the name of the file
-    nameHolder.innerHTML = modifyFileName(fileName);
+    nameHolder.innerHTML = fileName;//modifyFileName(fileName);
     fileNameElement.appendChild(nameHolder);
 
     var folderImgContainer = document.createElement("div");  // a div to hold the folder/file icon to fix image aspect ratio
@@ -587,6 +589,7 @@ function ignoreEvent(event){
 }
 
 function showSettingsMenu(){
+    createSettingsMenu(groupName);
     settingsMenu.popup(win) // show the menu
 }
 
@@ -603,6 +606,10 @@ function saveNewTitle(){
 
     var oldName = desktopPath + "/" + MAIN_DIR + "/" + groupName;
     var newName = desktopPath + "/" + MAIN_DIR + "/" + updatedTitle;
+
+    //global.sharedObj.titles[Win_index] = newName;
+
+    remote.getGlobal("sharedObj").titles[Win_index] = newName;
 
     fse.rename(oldName, newName, function(err){
         if (err) console.log("err: ", err);
@@ -662,6 +669,31 @@ remote.getCurrentWindow().on("resize", function(){
 
     Win_height = size[1];
 })
+
+function mergeToFolder(currentGroup, toGroup){
+    var path = desktopPath + "/" + MAIN_DIR + "/";
+    var files = fse.readdirSync(path + currentGroup);
+    files.forEach(function(file){
+        fse.move(path + currentGroup + "/" + file, path + toGroup + "/" + file, function(err){
+            if (err){
+                console.log(err);
+                return;
+            }
+            console.log("Done");
+            
+            rmdir(path+currentGroup, function(err, f, f2){
+                if (err){
+                    console.log(err);
+                }
+            });
+        })
+    });
+
+
+
+}
+
+
 //
 // // before quitting the window, save the data structure
 // window.onbeforeunload = function onbeforeunload() {
