@@ -680,7 +680,7 @@ function mergeToFolder(currentGroup, toGroup){
                 return;
             }
             console.log("Done");
-            
+
             rmdir(path+currentGroup, function(err, f, f2){
                 if (err){
                     console.log(err);
@@ -692,6 +692,19 @@ function mergeToFolder(currentGroup, toGroup){
 
 
 }
+
+
+// For development only
+// pressing 1 will toggle the dev tools
+// pressing 2 will reload the window
+document.addEventListener("keydown", function (e) {
+	if (e.which === 49) {
+		win.toggleDevTools();
+	} else if (e.which === 50) {
+		location.reload();
+	}
+});
+
 
 
 //

@@ -1,6 +1,8 @@
 <html>
     <head>
         <link rel="stylesheet" type="text/css" href="pref_style.css">
+        <link rel="stylesheet" href="dF-page/vendor/font-awesome/css/font-awesome.min.css">
+
     </head>
     <body onload="init()">
         <div id="welcomePage">
@@ -20,13 +22,18 @@
                     to adjust it to your needs, click on the arrow to move to the settings window.
                 </p>
                 <button id="autoGroup" onclick="autoGroup()"> Auto Group</button>
-                <button id="toSettingsButton" onclick="toSettings()">R</button>
+                <a onclick="toSettings()">
+                    <i class="fa fa-4x fa-angle-right" id="toSettingsButton"  aria-hidden="true"></i>
+                </a>
             </div>
             <br />
         </div>
 
         <div id="settingsPage">
-            <button id="toWelcomeButton" onclick="toWelcome()">L</button>
+            <a onclick="toWelcome()">
+                <i class="fa fa-4x fa-angle-left" id="toWelcomeButton" aria-hidden="true"></i>
+            </a>
+
 
             Desktop Folder Name: <input id="desktopFolderName" type="text" placeholder="DesktopFlush" onblur="updateFolderName()"/>
 
@@ -52,7 +59,9 @@
             </div>
 
             <br />
+
             <button id="okButton" onclick="start()"> OK </button>
+
         </div>
 
     </body>
@@ -154,10 +163,7 @@
             console.log(data);
 
             batchedWindowCreating(data);
-            // var radioButtons = document.querySelectorAll('input[name=Screenshot]:checked');
-            // for (var i = 0; i < radioButtons.length; i++){
-            //     console.log(radioButtons[i].value);
-            // }
+
         }
 
         function addToGroup(groupName, fileName, dict){
@@ -251,6 +257,12 @@
             }, $.speed(duration, easing, complete));
         };
 
+        $.fn.blindLeftIn = function (duration, easing, complete){
+            return this.animate({
+                marginLeft: 0
+            }, $.speed(duration, easing, complete));
+        };
+
         $.fn.blindRightIn = function (duration, easing, complete) {
             return this.animate({
                 marginLeft: 0
@@ -264,17 +276,26 @@
         };
 
 
-        $("#settingsPage").blindRightOut("fast");
-
         function toSettings(){
-            // $("#settingsPage").show(200, "slide");
-            // $("#welcomePage").animate({"margin-right":"+=600"});
-            // $("#settingsPage").animate({"margin-right":'200'});
-            $("#welcomePage").blindLeftOut(500);
+
             $("#settingsPage").css("visibility", "visible");
 
-            $("#settingsPage").blindRightIn(500, function(){
+            $("#welcomePage").blindLeftOut(600);
+
+            $("#settingsPage").blindLeftIn(600, function(){
                 $("#welcomePage").css("visibility", "hidden");
+
+            });
+
+        }
+
+        function toWelcome(){
+            $("#welcomePage").css("visibility", "visible");
+
+            $("#settingsPage").blindRightOut(600);
+
+            $("#welcomePage").blindRightIn(600, function(){
+                $("#settingsPage").css("visibility", "hidden");
             });
 
         }

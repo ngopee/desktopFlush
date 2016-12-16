@@ -1,3 +1,8 @@
+body{
+    overflow-x: hidden;
+    background: url("dF-page/img/bg-pattern.png"), linear-gradient(to left, #d82e1d, #5A5FBE);
+}
+
 .radioButton{
     margin-right: 36px;
     margin-left: 22px;
@@ -26,20 +31,24 @@
 }
 
 #settingsPage{
-    visibility: hidden;
-    margin-top: -50%;
+    margin-top: -40%;
+    margin-left: 90%;
     width: 100%;
+    display: block;
+    visibility: hidden;
 }
 
 #welcomePage{
+    display: block;
     width: 100%;
-    margin-bottom: 10%;
 }
+
 
 #toWelcomeButton{
     float: left;
-    margin-bottom: 100%;
+    margin-top: 15%;
     margin-right: 30px;
+    margin-bottom: 25%;
 }
 
 #toSettingsButton{
@@ -56,4 +65,8 @@
 #foldersCheckbox{
     width: 100%;
     margin-left: 100px;
+}
+
+#desktopFolderName{
+    margin-bottom: 20px;
 }

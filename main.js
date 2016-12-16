@@ -311,7 +311,7 @@ function createWindow () {
 
         win.setVisibleOnAllWorkspaces(true);
 
-        win.webContents.openDevTools();
+        // win.webContents.openDevTools();
     }
 
     // and load the index.html of the app.
@@ -408,7 +408,7 @@ function initialize(){
 function startApp(){
 
     storage.has("firstTime", function(err, runBefore){
-        if (!runBefore){
+        if (runBefore){
             storage.set("firstTime", "True", function(err){
                 console.log(err)
             });
